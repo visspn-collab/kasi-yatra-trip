@@ -312,6 +312,13 @@ table.expenses tfoot td{padding:.8rem 1rem; font-family:"IBM Plex Mono", monospa
 <div class="whoami" id="whoami" hidden></div>
 
 <script>
+/* ---------------- Shared state (declared early so no reference-before-init errors) ---------------- */
+const fmt = n => "₹" + Number(n||0).toLocaleString("en-IN", {maximumFractionDigits:0});
+let registeredNames = [];
+let selectedSplit = new Set();
+let expenses = [];
+let editingExpenseId = null;
+
 /* ---------------- Tabs ---------------- */
 document.querySelectorAll('.tab').forEach(btn=>{
   btn.addEventListener('click', ()=>{
@@ -530,10 +537,6 @@ function selectDay(d){
 selectDay('1');
 
 /* ---------------- Expenses ---------------- */
-const fmt = n => "₹" + Number(n||0).toLocaleString("en-IN", {maximumFractionDigits:0});
-let registeredNames = [];
-let selectedSplit = new Set();
-let expenses = [];
 
 function renderChips(){
   const box = document.getElementById('split-chips');
@@ -568,8 +571,6 @@ async function loadRegistrations(){
     renderChips();
   }catch(err){ /* keep whatever we had */ }
 }
-
-let editingExpenseId = null;
 
 function resetExpenseForm(){
   editingExpenseId = null;
