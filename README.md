@@ -69,13 +69,18 @@ Since you register with the name **Vishy**, the page unlocks extra abilities for
 you only:
 - The "Paid by" field is editable, so you can log an expense on anyone's behalf.
 - Every row in the expense table gets **Edit** and **Delete** buttons.
+- A **"+ Record a Payment"** button appears under Settle Up, for logging money
+  that's actually changed hands (someone paid you, or you paid a creditor) — pick
+  who paid whom and how much. This updates everyone's balance and the Settle Up
+  suggestions; a "Recent Payments" list underneath shows what's been recorded,
+  visible to everyone, with a Remove button for you if you need to undo one.
 
-Editing or deleting asks for a PIN the first time each visit — it's currently set
-to **2026** inside `netlify/functions/update-expense.mjs` and
-`netlify/functions/delete-expense.mjs` (search for `ADMIN_PIN`). Change it to
-something only you know before sharing the QR code widely: edit both files the
-same way you'd edit any other file in the GitHub repo, then commit — Netlify
-redeploys automatically.
+Editing, deleting, or recording a payment asks for a PIN the first time each visit
+— it's currently set to **2026** inside `netlify/functions/update-expense.mjs`,
+`delete-expense.mjs`, `add-settlement.mjs`, and `delete-settlement.mjs` (search
+for `ADMIN_PIN` in each). Change it to something only you know before sharing the
+QR code widely: edit all four files the same way you'd edit any other file in the
+GitHub repo, then commit — Netlify redeploys automatically.
 
 Worth knowing: this whole scheme checks the *name* someone typed at registration,
 not a real login. Anyone could type "Vishy" as their name, though they'd still be

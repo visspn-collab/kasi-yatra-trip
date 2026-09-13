@@ -41,6 +41,10 @@ a{color:var(--river);}
 .tab.active{color:var(--saffron); border-bottom-color:var(--saffron); font-weight:600;}
 .tab:hover{color:var(--ink);}
 
+.langtoggle{display:flex; gap:.3rem; margin:.15rem 0 .9rem;}
+.langbtn{font-family:"IBM Plex Mono", monospace; font-size:.72rem; padding:.35rem .8rem; border-radius:999px; border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); cursor:pointer;}
+.langbtn.active{background:var(--saffron); border-color:var(--saffron); color:var(--surface); font-weight:600;}
+
 .page{max-width:980px; margin:0 auto; padding:2rem 1.5rem;}
 .page[hidden]{display:none;}
 
@@ -131,6 +135,19 @@ table.expenses tfoot td{padding:.8rem 1rem; font-family:"IBM Plex Mono", monospa
 .settleup h3{font-family:"Fraunces", serif; font-size:1.05rem; margin:0 0 .7rem;}
 .settleitem{display:flex; align-items:center; gap:.5rem; font-size:.86rem; padding:.4rem 0;}
 .settleitem .arrow{color:var(--saffron); font-family:"IBM Plex Mono", monospace;}
+.settleitem button{font-family:"IBM Plex Mono", monospace; font-size:.7rem; margin-left:auto; background:var(--saffron-soft); color:var(--saffron); border:none; padding:.3rem .7rem; border-radius:999px; cursor:pointer;}
+.settlelog{margin-top:1.4rem; padding-top:1.1rem; border-top:1px solid var(--line);}
+.settlelog h3{font-family:"Fraunces", serif; font-size:1.05rem; margin:0 0 .7rem;}
+.settlelogitem{display:flex; align-items:center; gap:.5rem; font-size:.82rem; color:var(--ink-soft); padding:.35rem 0;}
+.settlelogitem b{color:var(--ink); font-weight:600;}
+.settlelogitem .del{margin-left:auto; background:none; border:none; color:#C0472F; font-family:"IBM Plex Mono", monospace; font-size:.7rem; cursor:pointer; padding:0;}
+.settle-form{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:.9rem 1rem; margin:1rem 0 1.5rem; display:none;}
+.settle-form.show{display:block;}
+.settle-form .row{display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:.6rem; margin-bottom:.5rem;}
+@media (max-width:700px){ .settle-form .row{grid-template-columns:1fr 1fr;} }
+.settle-form input, .settle-form select{font-family:"Karla", sans-serif; font-size:.86rem; padding:.55rem .7rem; border:1px solid var(--line); border-radius:8px; background:var(--ground); color:var(--ink);}
+.settle-form button{font-family:"IBM Plex Mono", monospace; font-size:.82rem; font-weight:600; padding:.55rem 1rem; border-radius:8px; border:1px solid var(--saffron); background:var(--saffron); color:var(--surface); cursor:pointer;}
+.recordpay-btn{font-family:"IBM Plex Mono", monospace; font-size:.78rem; font-weight:600; background:var(--saffron-soft); color:var(--saffron); border:none; padding:.5rem 1rem; border-radius:999px; cursor:pointer; margin-top:.9rem;}
 .refreshbar{display:flex; align-items:center; gap:.7rem; font-size:.78rem; color:var(--ink-soft); margin-bottom:.9rem;}
 .refreshbar button{font-family:"IBM Plex Mono", monospace; font-size:.75rem; padding:.4rem .8rem; border-radius:999px; border:1px solid var(--line); background:var(--surface); color:var(--ink); cursor:pointer;}
 .refreshbar button:hover{border-color:var(--saffron);}
@@ -188,9 +205,13 @@ table.expenses tfoot td{padding:.8rem 1rem; font-family:"IBM Plex Mono", monospa
   <div class="wrap">
     <div class="eyebrow">Varanasi · 1–14 Nov 2026 · Family Trip</div>
     <h1>Kasi Yatra 2026</h1>
+    <div class="langtoggle" id="langtoggle">
+      <button class="langbtn active" data-lang="en">English</button>
+      <button class="langbtn" data-lang="te">Telugu</button>
+    </div>
     <div class="tabs" id="tabs">
-      <button class="tab active" data-tab="temples">Temples</button>
-      <button class="tab" data-tab="itinerary">Itinerary</button>
+      <button class="tab active" data-tab="temples" data-en="Temples" data-te="ఆలయాలు">Temples</button>
+      <button class="tab" data-tab="itinerary" data-en="Itinerary" data-te="యాత్రా ప్రణాళిక">Itinerary</button>
       <button class="tab" data-tab="map">Route Map</button>
       <button class="tab" data-tab="expenses">Expenses</button>
       <button class="tab" data-tab="photos">Photos</button>
@@ -200,25 +221,30 @@ table.expenses tfoot td{padding:.8rem 1rem; font-family:"IBM Plex Mono", monospa
 
 <!-- ================= TEMPLES INDEX ================= -->
 <section class="page" id="page-temples">
-  <p class="sub">Every temple and ghat on the trip, in one place. As new suggestions come in, Vishy adds them here — each card links to the day it falls on in the Itinerary.</p>
-  <div class="section-head"><h2>Temples &amp; Ghats</h2><span class="count" id="temple-count"></span></div>
+  <p class="sub" id="temples-sub" data-en="Every temple and ghat on the trip, in one place. As new suggestions come in, Vishy adds them here — each card links to the day it falls on in the Itinerary." data-te="ప్రయాణంలోని ప్రతి ఆలయం మరియు ఘాట్ ఒకే చోట. కొత్త సూచనలు వచ్చినప్పుడు, విష్ఠి వాటిని ఇక్కడ చేరుస్తారు — ప్రతి కార్డు యాత్రా ప్రణాళికలో అది ఉన్న రోజుకు లింక్ అవుతుంది.">Every temple and ghat on the trip, in one place. As new suggestions come in, Vishy adds them here — each card links to the day it falls on in the Itinerary.</p>
+  <div class="section-head"><h2 data-en="Temples &amp; Ghats" data-te="ఆలయాలు &amp; ఘాట్లు">Temples &amp; Ghats</h2><span class="count" id="temple-count"></span></div>
   <div class="templegrid" id="temple-grid"></div>
-  <p class="photocredit">Photos: Wikimedia Commons, where a real photo could be found; a placeholder marks the rest until one is added.</p>
+  <p class="photocredit" data-en="Photos: Wikimedia Commons, where a real photo could be found; a placeholder marks the rest until one is added." data-te="ఫోటోలు: వికీమీడియా కామన్స్ నుండి, నిజమైన ఫోటో దొరికిన చోట; మిగిలిన వాటికి ఫోటో జోడించే వరకు ఒక ప్లేస్‌హోల్డర్ ఉంటుంది.">Photos: Wikimedia Commons, where a real photo could be found; a placeholder marks the rest until one is added.</p>
 </section>
 
 <!-- ================= ITINERARY ================= -->
 <section class="page" id="page-itinerary" hidden>
-  <p class="sub">Temple and ghat visits for the group. This is a living plan — Vishy updates it here as things change, so check back before each day.</p>
+  <p class="sub" id="itin-sub" data-en="Temple and ghat visits for the group. This is a living plan — Vishy updates it here as things change, so check back before each day." data-te="గుంపు కోసం ఆలయం మరియు ఘాట్ సందర్శనలు. ఇది ఎప్పటికప్పుడు మారే ప్రణాళిక — మార్పులు జరిగినప్పుడు విష్ఠి దీన్ని ఇక్కడ నవీకరిస్తారు, కాబట్టి ప్రతి రోజుకు ముందు మళ్లీ చూడండి.">Temple and ghat visits for the group. This is a living plan — Vishy updates it here as things change, so check back before each day.</p>
 
-  <div class="section-head"><h2>Full Itinerary</h2><span class="count">7 days · 20 pilgrims</span></div>
+  <div class="section-head"><h2 data-en="Full Itinerary" data-te="పూర్తి యాత్రా ప్రణాళిక">Full Itinerary</h2><span class="count" id="itin-count" data-en="7 days · 20 pilgrims" data-te="7 రోజులు · 20 యాత్రికులు">7 days · 20 pilgrims</span></div>
   <div class="tablewrap">
     <table class="itin">
-      <thead><tr><th>Day</th><th>Time</th><th>Temple / Ghat</th><th>Notes</th></tr></thead>
+      <thead><tr>
+        <th data-en="Day" data-te="రోజు">Day</th>
+        <th data-en="Time" data-te="సమయం">Time</th>
+        <th data-en="Temple / Ghat" data-te="ఆలయం / ఘాట్">Temple / Ghat</th>
+        <th data-en="Notes" data-te="గమనికలు">Notes</th>
+      </tr></thead>
       <tbody id="itin-body"></tbody>
     </table>
   </div>
 
-  <div class="section-head"><h2>Booking Checklist</h2><span class="count">before you travel</span></div>
+  <div class="section-head"><h2 data-en="Booking Checklist" data-te="బుకింగ్ చెక్‌లిస్ట్">Booking Checklist</h2><span class="count" data-en="before you travel" data-te="ప్రయాణానికి ముందు">before you travel</span></div>
   <div class="checklist"><ul id="checklist-body"></ul></div>
 </section>
 
@@ -312,7 +338,24 @@ table.expenses tfoot td{padding:.8rem 1rem; font-family:"IBM Plex Mono", monospa
     <div class="balancecard">
       <h3>Net Balance</h3>
       <div id="balance-body"></div>
-      <div class="settleup"><h3>Settle Up</h3><div id="settle-body"></div></div>
+      <div class="settleup">
+        <h3>Settle Up</h3>
+        <div id="settle-body"></div>
+        <button class="recordpay-btn" id="recordpay-btn" hidden type="button">+ Record a Payment</button>
+        <div class="settle-form" id="settle-form">
+          <div class="row">
+            <select id="s-from"><option value="">From</option></select>
+            <select id="s-to"><option value="">To</option></select>
+            <input type="number" id="s-amount" placeholder="Amount (₹)" min="1" step="1">
+            <button type="button" id="s-submit">Save</button>
+          </div>
+          <span class="form-status" id="settle-status"></span>
+        </div>
+        <div class="settlelog" id="settlelog-wrap" hidden>
+          <h3>Recent Payments</h3>
+          <div id="settlelog-body"></div>
+        </div>
+      </div>
     </div>
   </div>
   <p class="footnote">Spotted a mistake in an entry? Let Vishy know — he can correct it directly.</p>
@@ -339,6 +382,27 @@ let registeredNames = [];
 let selectedSplit = new Set();
 let expenses = [];
 let editingExpenseId = null;
+let lang = localStorage.getItem('kasiLang') || 'en';
+let settlements = [];
+
+/* ---------------- Language toggle ---------------- */
+function applyLanguage(){
+  document.querySelectorAll('.langbtn').forEach(b=>b.classList.toggle('active', b.dataset.lang===lang));
+  document.querySelectorAll('[data-en]').forEach(el=>{
+    const text = lang==='te' ? (el.dataset.te || el.dataset.en) : el.dataset.en;
+    if(text !== undefined) el.innerHTML = text;
+  });
+  renderTemples();
+  renderItinerary();
+  renderChecklist();
+}
+document.querySelectorAll('.langbtn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    lang = btn.dataset.lang;
+    localStorage.setItem('kasiLang', lang);
+    applyLanguage();
+  });
+});
 
 /* ---------------- Tabs ---------------- */
 function goToTab(tab){
@@ -351,32 +415,36 @@ document.querySelectorAll('.tab').forEach(btn=>{
 });
 
 /* ---------------- Temples Index ---------------- */
-/* To add a new temple: add one object below (image can be a real photo URL, or leave blank for a placeholder). */
+/* To add a new temple: add one object below (image can be a real photo URL, or leave blank for a placeholder). name_te/note_te are the Telugu versions — leave blank to fall back to English. */
 const temples = [
-  {name:"Kashi Vishwanath Temple", day:5, note:"Rudrabhishek, Sparsh Darshan (x2) and Sata Rishi Aarti across Days 5–6.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Kashi_Vishwanath_temple.jpg"},
-  {name:"Kala Bhairava Temple", day:2, note:"Early morning cluster, old city lanes.", img:""},
-  {name:"Pitamaheshwar Temple", day:2, note:"In a well, near Sita Mata Temple.", img:""},
-  {name:"Vaarahi Temple", day:2, note:"Near Meer Ghat.", img:""},
-  {name:"Dwadasa Adityulu (12 Sun Temples)", day:3, note:"Split across Day 3 (temples 1–6) and Day 4 (temples 7–12).", img:""},
-  {name:"Manikarnika Ghat", day:4, note:"Respectful viewing visit, ~12 noon.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Manikarnika%20Ghat%2C%20Varanasi%2C%20Uttar%20Pradesh.jpg"},
-  {name:"Kedareshwar Temple (Kedar Ghat)", day:4, note:"Use transport/boat between ghat points.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Varanasikedarghat.JPG"},
-  {name:"Annapoorna Amma Temple", day:6, note:"Same complex as Kashi Vishwanath, minimal walking.", img:""},
-  {name:"Vishalakshi Amma Temple", day:6, note:"Same complex as Kashi Vishwanath, minimal walking.", img:""},
-  {name:"Tilabhandeswar Temple", day:7, note:"Morning stop before the southern cluster.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Shri%20Tilbhandeshwar%20Mahadev%20Mandir0.jpg"},
-  {name:"Sankata Mochan Hanuman Temple", day:7, note:"Nearby to Durga Temple.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Sankat%20Mochan%20temple%20entrance%2C%20Varanasi%20-%20IRCTC%202017%20(1).jpg"},
-  {name:"Durga Temple", day:7, note:"Nearby to Sankata Mochan Hanuman Temple.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Durga%20Mandir%2C%20Varanasi%2C%20Uttar%20Pradesh%2C%20India%20(2007).jpg"}
+  {name:"Kashi Vishwanath Temple", name_te:"కాశీ విశ్వనాథ ఆలయం", day:5, note:"Rudrabhishek, Sparsh Darshan (x2) and Sata Rishi Aarti across Days 5–6.", note_te:"రోజులు 5–6లో రుద్రాభిషేకం, స్పర్శ దర్శనం (2సార్లు) మరియు సప్త ఋషి హారతి.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Kashi_Vishwanath_temple.jpg"},
+  {name:"Kala Bhairava Temple", name_te:"కాల భైరవ ఆలయం", day:2, note:"Early morning cluster, old city lanes.", note_te:"తెల్లవారుజామున సందర్శించే గుంపు, పాత నగర వీధులు.", img:""},
+  {name:"Pitamaheshwar Temple", name_te:"పితామహేశ్వర ఆలయం", day:2, note:"In a well, near Sita Mata Temple.", note_te:"సీతామాత ఆలయం సమీపంలో ఒక బావిలో ఉంది.", img:""},
+  {name:"Vaarahi Temple", name_te:"వారాహి ఆలయం", day:2, note:"Near Meer Ghat.", note_te:"మీర్ ఘాట్ సమీపంలో.", img:""},
+  {name:"Dwadasa Adityulu (12 Sun Temples)", name_te:"ద్వాదశ ఆదిత్యులు (12 సూర్య ఆలయాలు)", day:3, note:"Split across Day 3 (temples 1–6) and Day 4 (temples 7–12).", note_te:"రోజు 3 (ఆలయాలు 1–6) మరియు రోజు 4 (ఆలయాలు 7–12)గా విభజించబడింది.", img:""},
+  {name:"Manikarnika Ghat", name_te:"మణికర్ణికా ఘాట్", day:4, note:"Respectful viewing visit, ~12 noon.", note_te:"గౌరవప్రదమైన సందర్శన, మధ్యాహ్నం సుమారు 12 గంటలకు.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Manikarnika%20Ghat%2C%20Varanasi%2C%20Uttar%20Pradesh.jpg"},
+  {name:"Kedareshwar Temple (Kedar Ghat)", name_te:"కేదారేశ్వర ఆలయం (కేదార్ ఘాట్)", day:4, note:"Use transport/boat between ghat points.", note_te:"ఘాట్ ప్రదేశాల మధ్య రవాణా/పడవను ఉపయోగించండి.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Varanasikedarghat.JPG"},
+  {name:"Annapoorna Amma Temple", name_te:"అన్నపూర్ణ అమ్మ ఆలయం", day:6, note:"Same complex as Kashi Vishwanath, minimal walking.", note_te:"కాశీ విశ్వనాథ ఆలయ ప్రాంగణంలోనే, తక్కువ నడక.", img:""},
+  {name:"Vishalakshi Amma Temple", name_te:"విశాలాక్షి అమ్మ ఆలయం", day:6, note:"Same complex as Kashi Vishwanath, minimal walking.", note_te:"కాశీ విశ్వనాథ ఆలయ ప్రాంగణంలోనే, తక్కువ నడక.", img:""},
+  {name:"Tilabhandeswar Temple", name_te:"తిలభాండేశ్వర ఆలయం", day:7, note:"Morning stop before the southern cluster.", note_te:"దక్షిణ ప్రాంత సందర్శనకు ముందు ఉదయపు మజిలీ.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Shri%20Tilbhandeshwar%20Mahadev%20Mandir0.jpg"},
+  {name:"Sankata Mochan Hanuman Temple", name_te:"సంకట మోచన హనుమాన్ ఆలయం", day:7, note:"Nearby to Durga Temple.", note_te:"దుర్గా ఆలయానికి సమీపంలో.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Sankat%20Mochan%20temple%20entrance%2C%20Varanasi%20-%20IRCTC%202017%20(1).jpg"},
+  {name:"Durga Temple", name_te:"దుర్గా ఆలయం", day:7, note:"Nearby to Sankata Mochan Hanuman Temple.", note_te:"సంకట మోచన హనుమాన్ ఆలయానికి సమీపంలో.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Durga%20Mandir%2C%20Varanasi%2C%20Uttar%20Pradesh%2C%20India%20(2007).jpg"}
 ];
+const DAY_TE = "రోజు";
 function renderTemples(){
   const grid = document.getElementById('temple-grid');
   grid.innerHTML = '';
-  document.getElementById('temple-count').textContent = temples.length + ' places';
+  document.getElementById('temple-count').textContent = temples.length + (lang==='te' ? ' ప్రదేశాలు' : ' places');
   temples.forEach(t=>{
+    const name = lang==='te' ? (t.name_te || t.name) : t.name;
+    const note = lang==='te' ? (t.note_te || t.note) : t.note;
+    const dayLabel = lang==='te' ? `${DAY_TE} ${t.day} →` : `Day ${t.day} →`;
     const card = document.createElement('div');
     card.className = 'templecard';
     const thumb = t.img
-      ? `<img class="thumb" src="${t.img}" alt="${t.name}" loading="lazy" onerror="this.outerHTML='<div class=&quot;thumb placeholder&quot;>🛕</div>'">`
+      ? `<img class="thumb" src="${t.img}" alt="${name}" loading="lazy" onerror="this.outerHTML='<div class=&quot;thumb placeholder&quot;>🛕</div>'">`
       : `<div class="thumb placeholder">🛕</div>`;
-    card.innerHTML = `${thumb}<div class="tbody"><h3>${t.name}</h3><div class="tnote">${t.note}</div><button class="daylink" data-day="${t.day}">Day ${t.day} →</button></div>`;
+    card.innerHTML = `${thumb}<div class="tbody"><h3>${name}</h3><div class="tnote">${note}</div><button class="daylink" data-day="${t.day}">${dayLabel}</button></div>`;
     grid.appendChild(card);
   });
   grid.querySelectorAll('.daylink').forEach(b=>{
@@ -405,6 +473,8 @@ function applyAdminUI(){
   } else {
     paidByInput.setAttribute('readonly', 'readonly');
   }
+  document.getElementById('recordpay-btn').hidden = !isAdmin();
+  if(!isAdmin()) document.getElementById('settle-form').classList.remove('show');
   renderExpenses();
 }
 
@@ -451,69 +521,87 @@ showWhoAmI();
 applyAdminUI();
 
 /* ---------------- Itinerary ---------------- */
+/* Each row can carry _te versions of time/place/note; leave blank to fall back to English. */
 const fullItin = [
   {day:1, rows:[
-    {time:"—", place:"Arrival & Rest", note:"Check-in, rest after travel. No temple activity — recovery day."},
-    {time:"Evening (optional)", place:"Ganga Aarti — Dashashwamedh Ghat", note:"Seated/boat viewing only, no walking required."}
+    {time:"—", place:"Arrival & Rest", place_te:"రాక & విశ్రాంతి", note:"Check-in, rest after travel. No temple activity — recovery day.", note_te:"చెక్-ఇన్, ప్రయాణం తర్వాత విశ్రాంతి. ఆలయ కార్యక్రమం లేదు — విశ్రాంతి రోజు."},
+    {time:"Evening (optional)", time_te:"సాయంత్రం (ఐచ్ఛికం)", place:"Ganga Aarti — Dashashwamedh Ghat", place_te:"గంగా హారతి — దశాశ్వమేధ ఘాట్", note:"Seated/boat viewing only, no walking required.", note_te:"కూర్చుని/పడవలో చూడటం మాత్రమే, నడక అవసరం లేదు."}
   ]},
   {day:2, rows:[
-    {time:"~5:00 AM", place:"Kala Bhairava Temple", note:"Early morning cluster — old city area."},
-    {time:"~6:00 AM", place:"Pitamaheshwar Temple (in a well, near Sita Mata Temple)", note:"Part of same early cluster."},
-    {time:"~7:00 AM", place:"Vaarahi Temple (near Meer Ghat)", note:"Part of same early cluster."},
-    {time:"Rest of day", place:"Free / Rest", note:"Breakfast and rest. Arrange transport/wheelchairs the night before."}
+    {time:"~5:00 AM", time_te:"~ఉదయం 5:00", place:"Kala Bhairava Temple", place_te:"కాల భైరవ ఆలయం", note:"Early morning cluster — old city area.", note_te:"తెల్లవారుజామున సందర్శించే గుంపు — పాత నగర ప్రాంతం."},
+    {time:"~6:00 AM", time_te:"~ఉదయం 6:00", place:"Pitamaheshwar Temple (in a well, near Sita Mata Temple)", place_te:"పితామహేశ్వర ఆలయం (బావిలో, సీతామాత ఆలయం సమీపంలో)", note:"Part of same early cluster.", note_te:"అదే తెల్లవారుజాము గుంపులో భాగం."},
+    {time:"~7:00 AM", time_te:"~ఉదయం 7:00", place:"Vaarahi Temple (near Meer Ghat)", place_te:"వారాహి ఆలయం (మీర్ ఘాట్ సమీపంలో)", note:"Part of same early cluster.", note_te:"అదే తెల్లవారుజాము గుంపులో భాగం."},
+    {time:"Rest of day", time_te:"మిగతా రోజు", place:"Free / Rest", place_te:"ఖాళీ సమయం / విశ్రాంతి", note:"Breakfast and rest. Arrange transport/wheelchairs the night before.", note_te:"అల్పాహారం మరియు విశ్రాంతి. ముందు రాత్రి రవాణా/వీల్‌చైర్‌లు ఏర్పాటు చేయండి."}
   ]},
   {day:3, rows:[
-    {time:"~9:30 AM onwards", place:"Dwadasa Adityulu — Part 1 (Temples 1–6)", note:"First 6 of the 12 Aditya (Sun) temples, relaxed pace with breaks."},
-    {time:"Afternoon", place:"Free / Rest", note:""}
+    {time:"~9:30 AM onwards", time_te:"~ఉదయం 9:30 నుండి", place:"Dwadasa Adityulu — Part 1 (Temples 1–6)", place_te:"ద్వాదశ ఆదిత్యులు — భాగం 1 (ఆలయాలు 1–6)", note:"First 6 of the 12 Aditya (Sun) temples, relaxed pace with breaks.", note_te:"12 ఆదిత్య (సూర్య) ఆలయాలలో మొదటి 6, విరామాలతో సాదాసీదా వేగంతో."},
+    {time:"Afternoon", time_te:"మధ్యాహ్నం", place:"Free / Rest", place_te:"ఖాళీ సమయం / విశ్రాంతి", note:""}
   ]},
   {day:4, rows:[
-    {time:"~9:30 AM onwards", place:"Dwadasa Adityulu — Part 2 (Temples 7–12)", note:"Remaining 6 Aditya temples, completing the circuit."},
-    {time:"~12:00 Noon", place:"Manikarnika Ghat", note:"Respectful viewing visit."},
-    {time:"Onward", place:"Kedareshwar Temple (Kedar Ghat)", note:"Use transport/boat between ghat points to minimise walking on steps."},
-    {time:"Afternoon", place:"Free / Rest", note:"Fuller day — keep pace unhurried."}
+    {time:"~9:30 AM onwards", time_te:"~ఉదయం 9:30 నుండి", place:"Dwadasa Adityulu — Part 2 (Temples 7–12)", place_te:"ద్వాదశ ఆదిత్యులు — భాగం 2 (ఆలయాలు 7–12)", note:"Remaining 6 Aditya temples, completing the circuit.", note_te:"మిగిలిన 6 ఆదిత్య ఆలయాలు, ప్రదక్షిణ పూర్తి చేయడం."},
+    {time:"~12:00 Noon", time_te:"~మధ్యాహ్నం 12:00", place:"Manikarnika Ghat", place_te:"మణికర్ణికా ఘాట్", note:"Respectful viewing visit.", note_te:"గౌరవప్రదమైన సందర్శన."},
+    {time:"Onward", time_te:"తరువాత", place:"Kedareshwar Temple (Kedar Ghat)", place_te:"కేదారేశ్వర ఆలయం (కేదార్ ఘాట్)", note:"Use transport/boat between ghat points to minimise walking on steps.", note_te:"మెట్లపై నడకను తగ్గించడానికి ఘాట్ ప్రదేశాల మధ్య రవాణా/పడవను ఉపయోగించండి."},
+    {time:"Afternoon", time_te:"మధ్యాహ్నం", place:"Free / Rest", place_te:"ఖాళీ సమయం / విశ్రాంతి", note:"Fuller day — keep pace unhurried.", note_te:"ఎక్కువ కార్యక్రమాలున్న రోజు — తొందరపడకుండా వెళ్లండి."}
   ]},
   {day:5, rows:[
-    {time:"~6:00–8:00 AM", place:"Kashi Vishwanath Temple — Rudrabhishek", note:"Book slot in advance; confirm on official portal."},
-    {time:"Mid-morning", place:"Free / Rest", note:"Return to hotel for rest and breakfast."},
-    {time:"~10:00–11:00 AM", place:"Kashi Vishwanath Temple — Sparsh Darshan #1", note:"Confirm exact slot on booking."},
-    {time:"Afternoon/Evening", place:"Free / Rest", note:"No further activity — early-start day."}
+    {time:"~6:00–8:00 AM", time_te:"~ఉదయం 6:00–8:00", place:"Kashi Vishwanath Temple — Rudrabhishek", place_te:"కాశీ విశ్వనాథ ఆలయం — రుద్రాభిషేకం", note:"Book slot in advance; confirm on official portal.", note_te:"ముందుగానే స్లాట్ బుక్ చేసుకోండి; అధికారిక పోర్టల్‌లో నిర్ధారించండి."},
+    {time:"Mid-morning", time_te:"మధ్య ఉదయం", place:"Free / Rest", place_te:"ఖాళీ సమయం / విశ్రాంతి", note:"Return to hotel for rest and breakfast.", note_te:"విశ్రాంతి మరియు అల్పాహారం కోసం హోటల్‌కు తిరిగి వెళ్లండి."},
+    {time:"~10:00–11:00 AM", time_te:"~ఉదయం 10:00–11:00", place:"Kashi Vishwanath Temple — Sparsh Darshan #1", place_te:"కాశీ విశ్వనాథ ఆలయం — స్పర్శ దర్శనం #1", note:"Confirm exact slot on booking.", note_te:"బుకింగ్‌లో ఖచ్చితమైన స్లాట్‌ను నిర్ధారించండి."},
+    {time:"Afternoon/Evening", time_te:"మధ్యాహ్నం/సాయంత్రం", place:"Free / Rest", place_te:"ఖాళీ సమయం / విశ్రాంతి", note:"No further activity — early-start day.", note_te:"మరో కార్యక్రమం లేదు — ఉదయం త్వరగా మొదలైన రోజు."}
   ]},
   {day:6, rows:[
-    {time:"~9:00–11:00 AM", place:"Kashi Vishwanath Temple — Sparsh Darshan #2", note:"Confirm exact slot on booking."},
-    {time:"Late morning", place:"Annapoorna Amma Temple", note:"Same complex, minimal walking."},
-    {time:"Late morning", place:"Vishalakshi Amma Temple", note:"Same complex, minimal walking."},
-    {time:"Afternoon", place:"Free / Rest", note:""},
-    {time:"~7:00–8:00 PM", place:"Kashi Vishwanath Temple — Sata Rishi Aarti", note:"Confirm exact slot on booking."}
+    {time:"~9:00–11:00 AM", time_te:"~ఉదయం 9:00–11:00", place:"Kashi Vishwanath Temple — Sparsh Darshan #2", place_te:"కాశీ విశ్వనాథ ఆలయం — స్పర్శ దర్శనం #2", note:"Confirm exact slot on booking.", note_te:"బుకింగ్‌లో ఖచ్చితమైన స్లాట్‌ను నిర్ధారించండి."},
+    {time:"Late morning", time_te:"ఆలస్య ఉదయం", place:"Annapoorna Amma Temple", place_te:"అన్నపూర్ణ అమ్మ ఆలయం", note:"Same complex, minimal walking.", note_te:"అదే ప్రాంగణం, తక్కువ నడక."},
+    {time:"Late morning", time_te:"ఆలస్య ఉదయం", place:"Vishalakshi Amma Temple", place_te:"విశాలాక్షి అమ్మ ఆలయం", note:"Same complex, minimal walking.", note_te:"అదే ప్రాంగణం, తక్కువ నడక."},
+    {time:"Afternoon", time_te:"మధ్యాహ్నం", place:"Free / Rest", place_te:"ఖాళీ సమయం / విశ్రాంతి", note:""},
+    {time:"~7:00–8:00 PM", time_te:"~సాయంత్రం 7:00–8:00", place:"Kashi Vishwanath Temple — Sata Rishi Aarti", place_te:"కాశీ విశ్వనాథ ఆలయం — సప్త ఋషి హారతి", note:"Confirm exact slot on booking.", note_te:"బుకింగ్‌లో ఖచ్చితమైన స్లాట్‌ను నిర్ధారించండి."}
   ]},
   {day:7, rows:[
-    {time:"~9:30 AM", place:"Tilabhandeswar Temple", note:""},
-    {time:"Onward", place:"Sankata Mochan Hanuman Temple", note:"Nearby to Durga Temple."},
-    {time:"Onward", place:"Durga Temple", note:"Nearby to Sankata Mochan Hanuman Temple."},
-    {time:"Afternoon", place:"Rest, Packing, Departure Prep", note:""}
+    {time:"~9:30 AM", time_te:"~ఉదయం 9:30", place:"Tilabhandeswar Temple", place_te:"తిలభాండేశ్వర ఆలయం", note:""},
+    {time:"Onward", time_te:"తరువాత", place:"Sankata Mochan Hanuman Temple", place_te:"సంకట మోచన హనుమాన్ ఆలయం", note:"Nearby to Durga Temple.", note_te:"దుర్గా ఆలయానికి సమీపంలో."},
+    {time:"Onward", time_te:"తరువాత", place:"Durga Temple", place_te:"దుర్గా ఆలయం", note:"Nearby to Sankata Mochan Hanuman Temple.", note_te:"సంకట మోచన హనుమాన్ ఆలయానికి సమీపంలో."},
+    {time:"Afternoon", time_te:"మధ్యాహ్నం", place:"Rest, Packing, Departure Prep", place_te:"విశ్రాంతి, ప్యాకింగ్, బయలుదేరు సన్నాహాలు", note:""}
   ]}
 ];
-const itinBody = document.getElementById('itin-body');
-fullItin.forEach(block=>{
-  block.rows.forEach((r,i)=>{
-    const tr = document.createElement('tr');
-    if(i===0) tr.className = 'daystart';
-    tr.innerHTML = `<td class="daycell">${i===0 ? 'Day '+block.day : ''}</td><td class="timecell">${r.time}</td><td>${r.place}</td><td class="notecell">${r.note}</td>`;
-    itinBody.appendChild(tr);
+function renderItinerary(){
+  const itinBody = document.getElementById('itin-body');
+  itinBody.innerHTML = '';
+  const dayWord = lang==='te' ? DAY_TE : 'Day';
+  fullItin.forEach(block=>{
+    block.rows.forEach((r,i)=>{
+      const time = lang==='te' ? (r.time_te || r.time) : r.time;
+      const place = lang==='te' ? (r.place_te || r.place) : r.place;
+      const note = lang==='te' ? (r.note_te || r.note) : r.note;
+      const tr = document.createElement('tr');
+      if(i===0) tr.className = 'daystart';
+      tr.innerHTML = `<td class="daycell">${i===0 ? dayWord+' '+block.day : ''}</td><td class="timecell">${time}</td><td>${place}</td><td class="notecell">${note}</td>`;
+      itinBody.appendChild(tr);
+    });
   });
-});
+}
+renderItinerary();
+
 const checklistItems = [
-  "Confirm Rudrabhishek slot (Day 5, early morning) and book",
-  "Confirm Sparsh Darshan Day 5 slot and book for all 20",
-  "Confirm Sparsh Darshan Day 6 slot and book for all 20",
-  "Confirm Sata Rishi Aarti Day 6 evening slot and book",
-  "Arrange wheelchairs/support staff with Kashi Vishwanath Temple Trust for Days 5 and 6",
-  "Arrange private transport for the group throughout (especially the Day 2 early outing and Day 5 Rudrabhishek)",
-  "Confirm opening/ritual times for Kala Bhairava, Pitamaheshwar, and Vaarahi closer to the visit date",
-  "Confirm final hotel and update the Route Map pin",
-  "Add meals/restaurant plans (to be filled in later)"
+  {en:"Confirm Rudrabhishek slot (Day 5, early morning) and book", te:"రుద్రాభిషేకం స్లాట్ (రోజు 5, తెల్లవారుజామున) నిర్ధారించి బుక్ చేయండి"},
+  {en:"Confirm Sparsh Darshan Day 5 slot and book for all 20", te:"రోజు 5 స్పర్శ దర్శనం స్లాట్ నిర్ధారించి 20 మంది కోసం బుక్ చేయండి"},
+  {en:"Confirm Sparsh Darshan Day 6 slot and book for all 20", te:"రోజు 6 స్పర్శ దర్శనం స్లాట్ నిర్ధారించి 20 మంది కోసం బుక్ చేయండి"},
+  {en:"Confirm Sata Rishi Aarti Day 6 evening slot and book", te:"రోజు 6 సాయంత్రం సప్త ఋషి హారతి స్లాట్ నిర్ధారించి బుక్ చేయండి"},
+  {en:"Arrange wheelchairs/support staff with Kashi Vishwanath Temple Trust for Days 5 and 6", te:"రోజులు 5 మరియు 6 కోసం కాశీ విశ్వనాథ ఆలయ ట్రస్ట్‌తో వీల్‌చైర్లు/సహాయక సిబ్బందిని ఏర్పాటు చేయండి"},
+  {en:"Arrange private transport for the group throughout (especially the Day 2 early outing and Day 5 Rudrabhishek)", te:"గుంపు కోసం మొత్తం ప్రయాణానికి ప్రైవేట్ రవాణాను ఏర్పాటు చేయండి (ముఖ్యంగా రోజు 2 తెల్లవారుజాము పర్యటన మరియు రోజు 5 రుద్రాభిషేకం కోసం)"},
+  {en:"Confirm opening/ritual times for Kala Bhairava, Pitamaheshwar, and Vaarahi closer to the visit date", te:"సందర్శన తేదీకి దగ్గరగా కాల భైరవ, పితామహేశ్వర, వారాహి ఆలయాల తెరిచే/పూజా సమయాలను నిర్ధారించండి"},
+  {en:"Confirm final hotel and update the Route Map pin", te:"తుది హోటల్‌ను నిర్ధారించి మార్గ పటంలో పిన్‌ను నవీకరించండి"},
+  {en:"Add meals/restaurant plans (to be filled in later)", te:"భోజన/రెస్టారెంట్ ప్రణాళికలను జోడించండి (తర్వాత నింపబడుతుంది)"}
 ];
-const checklistBody = document.getElementById('checklist-body');
-checklistItems.forEach(item=>{ const li = document.createElement('li'); li.textContent = item; checklistBody.appendChild(li); });
+function renderChecklist(){
+  const checklistBody = document.getElementById('checklist-body');
+  checklistBody.innerHTML = '';
+  checklistItems.forEach(item=>{
+    const li = document.createElement('li');
+    li.textContent = lang==='te' ? item.te : item.en;
+    checklistBody.appendChild(li);
+  });
+}
+renderChecklist();
 
 /* ---------------- Route Map ---------------- */
 const days = {
@@ -739,6 +827,88 @@ async function loadExpenses(){
   renderExpenses();
 }
 
+async function loadSettlements(){
+  try{
+    const res = await fetch('/api/get-settlements');
+    const data = await res.json();
+    settlements = data.entries || [];
+  }catch(err){ /* keep whatever we had */ }
+  renderExpenses();
+}
+
+/* ---------------- Record a Payment (admin) ---------------- */
+function populateSettleSelects(){
+  const from = document.getElementById('s-from');
+  const to = document.getElementById('s-to');
+  const names = registeredNames.includes('Vishy') ? registeredNames : [...registeredNames, 'Vishy'];
+  [from, to].forEach(sel=>{
+    const cur = sel.value;
+    sel.innerHTML = `<option value="">${sel===from ? 'From' : 'To'}</option>` + names.map(n=>`<option value="${n}">${n}</option>`).join('');
+    if(names.includes(cur)) sel.value = cur;
+  });
+}
+
+document.getElementById('recordpay-btn').addEventListener('click', ()=>{
+  populateSettleSelects();
+  document.getElementById('settle-form').classList.toggle('show');
+});
+
+document.getElementById('s-submit').addEventListener('click', async ()=>{
+  const status = document.getElementById('settle-status');
+  const from = document.getElementById('s-from').value;
+  const to = document.getElementById('s-to').value;
+  const amount = Number(document.getElementById('s-amount').value);
+  if(!from || !to || from === to || !(amount > 0)){
+    status.textContent = 'Pick From, To (different people) and an amount.';
+    status.className = 'form-status err';
+    return;
+  }
+  let pin = getAdminPin() || askAdminPin();
+  if(!pin){ status.textContent = 'PIN required.'; status.className = 'form-status err'; return; }
+  status.textContent = 'Saving…'; status.className = 'form-status';
+  try{
+    const res = await fetch('/api/add-settlement', {
+      method:'POST', headers:{'content-type':'application/json'},
+      body: JSON.stringify({ from, to, amount, pin })
+    });
+    if(res.status === 403){
+      localStorage.removeItem('kasiAdminPin');
+      status.textContent = 'Wrong PIN — nothing was saved.';
+      status.className = 'form-status err';
+      return;
+    }
+    if(!res.ok) throw new Error('failed');
+    document.getElementById('s-amount').value = '';
+    status.textContent = 'Recorded!';
+    setTimeout(()=>{ if(status.textContent==='Recorded!') status.textContent=''; }, 2500);
+    loadSettlements();
+  }catch(err){
+    status.textContent = "Couldn't save — check your connection and try again.";
+    status.className = 'form-status err';
+  }
+});
+
+async function deleteSettlement(id){
+  if(!confirm('Delete this payment record?')) return;
+  let pin = getAdminPin() || askAdminPin();
+  if(!pin) return;
+  try{
+    const res = await fetch('/api/delete-settlement', {
+      method:'POST', headers:{'content-type':'application/json'},
+      body: JSON.stringify({ id, pin })
+    });
+    if(res.status === 403){
+      localStorage.removeItem('kasiAdminPin');
+      alert('Wrong PIN — nothing was deleted.');
+      return;
+    }
+    if(!res.ok) throw new Error('failed');
+    loadSettlements();
+  }catch(err){
+    alert("Couldn't delete — check your connection and try again.");
+  }
+}
+
 function renderExpenses(){
   const body = document.getElementById('expense-body');
   body.innerHTML = '';
@@ -768,6 +938,10 @@ function renderExpenses(){
     touch(e.paidBy); balances[e.paidBy] += e.amount;
     const share = e.amount / e.split.length;
     e.split.forEach(p=>{ touch(p); balances[p] -= share; });
+  });
+  settlements.forEach(s=>{
+    touch(s.from); balances[s.from] += s.amount;
+    touch(s.to); balances[s.to] -= s.amount;
   });
   const entries = Object.entries(balances);
   const balBody = document.getElementById('balance-body');
@@ -802,16 +976,38 @@ function renderExpenses(){
     if(transfers.length === 0){ settleBody.innerHTML = '<div class="settleitem" style="color:var(--ink-soft);">Everyone is settled up.</div>'; }
     transfers.forEach(([from,to,amt])=>{
       const item = document.createElement('div'); item.className = 'settleitem';
-      item.innerHTML = `<span>${from}</span><span class="arrow">→</span><span>${to}</span><span style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;">${fmt(amt)}</span>`;
+      item.innerHTML = `<span>${from}</span><span class="arrow">→</span><span>${to}</span><span style="font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;">${fmt(amt)}</span>`;
       settleBody.appendChild(item);
     });
   }
+
+  const logWrap = document.getElementById('settlelog-wrap');
+  const logBody = document.getElementById('settlelog-body');
+  if(settlements.length === 0){
+    logWrap.hidden = true;
+  } else {
+    logWrap.hidden = false;
+    logBody.innerHTML = '';
+    settlements.slice().reverse().forEach(s=>{
+      const item = document.createElement('div'); item.className = 'settlelogitem';
+      const del = admin ? `<button class="del" data-delset="${s.id}">Remove</button>` : '';
+      item.innerHTML = `<span><b>${s.from}</b> → <b>${s.to}</b>: ${fmt(s.amount)}</span>${del}`;
+      logBody.appendChild(item);
+    });
+    if(admin){
+      logBody.querySelectorAll('[data-delset]').forEach(b=>b.addEventListener('click', ()=>deleteSettlement(b.getAttribute('data-delset'))));
+    }
+  }
 }
 
-document.getElementById('refresh-btn').addEventListener('click', ()=>{ loadExpenses(); loadRegistrations(); });
+document.getElementById('refresh-btn').addEventListener('click', ()=>{ loadExpenses(); loadRegistrations(); loadSettlements(); });
 loadRegistrations();
 loadExpenses();
-setInterval(()=>{ loadExpenses(); loadRegistrations(); }, 20000);
+loadSettlements();
+setInterval(()=>{ loadExpenses(); loadRegistrations(); loadSettlements(); }, 20000);
+
+/* Apply saved language choice now that all render functions exist */
+applyLanguage();
 </script>
 </body>
 </html>
