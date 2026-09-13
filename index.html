@@ -271,6 +271,7 @@ table.expenses tfoot td{padding:.8rem 1rem; font-family:"IBM Plex Mono", monospa
 
   <div class="submitbar">
     <button type="button" id="f-submit">Add Expense</button>
+    <button type="button" id="f-cancel" hidden style="background:transparent; color:var(--ink-soft); border:1px solid var(--line);">Cancel</button>
     <span class="form-status" id="form-status"></span>
   </div>
 
@@ -282,7 +283,7 @@ table.expenses tfoot td{padding:.8rem 1rem; font-family:"IBM Plex Mono", monospa
   <div class="expense-grid">
     <div class="tablewrap">
       <table class="expenses">
-        <thead><tr><th>Day</th><th>Paid by</th><th>For</th><th>Split among</th><th style="text-align:right">Amount</th></tr></thead>
+        <thead><tr><th>Day</th><th>Paid by</th><th>For</th><th>Split among</th><th style="text-align:right">Amount</th><th></th></tr></thead>
         <tbody id="expense-body"></tbody>
         <tfoot><tr><td colspan="4">Total spent</td><td class="amt" id="expense-total"></td></tr></tfoot>
       </table>
@@ -326,6 +327,23 @@ const gate = document.getElementById('gate');
 const whoami = document.getElementById('whoami');
 
 function currentUser(){ return localStorage.getItem('kasiName') || ''; }
+function isAdmin(){ return currentUser().trim().toLowerCase() === 'vishy'; }
+function getAdminPin(){ return localStorage.getItem('kasiAdminPin') || ''; }
+function askAdminPin(){
+  const pin = window.prompt('Enter the admin PIN to make this change:');
+  if(pin) localStorage.setItem('kasiAdminPin', pin);
+  return pin || '';
+}
+function applyAdminUI(){
+  const paidByInput = document.getElementById('f-paidby');
+  if(isAdmin()){
+    paidByInput.removeAttribute('readonly');
+    paidByInput.placeholder = 'Paid by (you can enter anyone’s name)';
+  } else {
+    paidByInput.setAttribute('readonly', 'readonly');
+  }
+  renderExpenses();
+}
 
 function showWhoAmI(){
   const name = currentUser();
@@ -354,6 +372,7 @@ document.getElementById('gate-submit').addEventListener('click', async ()=>{
     gate.hidden = true;
     status.textContent = '';
     document.getElementById('f-paidby').value = name;
+    applyAdminUI();
     showWhoAmI();
     loadRegistrations();
   }catch(err){
@@ -366,6 +385,7 @@ if(currentUser()){
   document.getElementById('f-paidby').value = currentUser();
 }
 showWhoAmI();
+applyAdminUI();
 
 /* ---------------- Itinerary ---------------- */
 const fullItin = [
@@ -549,6 +569,58 @@ async function loadRegistrations(){
   }catch(err){ /* keep whatever we had */ }
 }
 
+let editingExpenseId = null;
+
+function resetExpenseForm(){
+  editingExpenseId = null;
+  document.getElementById('f-day').value = '';
+  document.getElementById('f-desc').value = '';
+  document.getElementById('f-amount').value = '';
+  document.getElementById('f-paidby').value = isAdmin() ? '' : currentUser();
+  selectedSplit = new Set();
+  renderChips();
+  document.getElementById('f-submit').textContent = 'Add Expense';
+  document.getElementById('f-cancel').hidden = true;
+}
+
+function startEditExpense(id){
+  const e = expenses.find(x=>x.id===id);
+  if(!e) return;
+  editingExpenseId = id;
+  document.getElementById('f-day').value = e.day;
+  document.getElementById('f-paidby').value = e.paidBy;
+  document.getElementById('f-desc').value = e.desc;
+  document.getElementById('f-amount').value = e.amount;
+  selectedSplit = new Set(e.split);
+  renderChips();
+  document.getElementById('f-submit').textContent = 'Save Changes';
+  document.getElementById('f-cancel').hidden = false;
+  document.getElementById('expense-form').scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+async function deleteExpense(id){
+  if(!confirm('Delete this expense?')) return;
+  let pin = getAdminPin() || askAdminPin();
+  if(!pin) return;
+  try{
+    const res = await fetch('/api/delete-expense', {
+      method:'POST', headers:{'content-type':'application/json'},
+      body: JSON.stringify({ id, pin })
+    });
+    if(res.status === 403){
+      localStorage.removeItem('kasiAdminPin');
+      alert('Wrong PIN — nothing was deleted.');
+      return;
+    }
+    if(!res.ok) throw new Error('failed');
+    loadExpenses();
+  }catch(err){
+    alert("Couldn't delete — check your connection and try again.");
+  }
+}
+
+document.getElementById('f-cancel').addEventListener('click', resetExpenseForm);
+
 document.getElementById('f-submit').addEventListener('click', async ()=>{
   const status = document.getElementById('form-status');
   const day = document.getElementById('f-day').value.trim();
@@ -563,19 +635,33 @@ document.getElementById('f-submit').addEventListener('click', async ()=>{
     return;
   }
   status.textContent = 'Saving…'; status.className = 'form-status';
+
   try{
-    const res = await fetch('/api/add-expense', {
-      method:'POST', headers:{'content-type':'application/json'},
-      body: JSON.stringify({ day, paidBy, desc, amount, split })
-    });
+    let res;
+    if(editingExpenseId){
+      let pin = getAdminPin() || askAdminPin();
+      if(!pin){ status.textContent = 'PIN required to save changes.'; status.className = 'form-status err'; return; }
+      res = await fetch('/api/update-expense', {
+        method:'POST', headers:{'content-type':'application/json'},
+        body: JSON.stringify({ id: editingExpenseId, day, paidBy, desc, amount, split, pin })
+      });
+      if(res.status === 403){
+        localStorage.removeItem('kasiAdminPin');
+        status.textContent = 'Wrong PIN — nothing was saved.';
+        status.className = 'form-status err';
+        return;
+      }
+    } else {
+      res = await fetch('/api/add-expense', {
+        method:'POST', headers:{'content-type':'application/json'},
+        body: JSON.stringify({ day, paidBy, desc, amount, split })
+      });
+    }
     if(!res.ok) throw new Error('failed');
-    document.getElementById('f-day').value = '';
-    document.getElementById('f-desc').value = '';
-    document.getElementById('f-amount').value = '';
-    selectedSplit = new Set();
-    renderChips();
-    status.textContent = 'Added!';
-    setTimeout(()=>{ if(status.textContent==='Added!') status.textContent=''; }, 2500);
+    const wasEditing = !!editingExpenseId;
+    resetExpenseForm();
+    status.textContent = wasEditing ? 'Changes saved!' : 'Added!';
+    setTimeout(()=>{ if(status.textContent==='Added!'||status.textContent==='Changes saved!') status.textContent=''; }, 2500);
     loadExpenses();
   }catch(err){
     status.textContent = "Couldn't save — check your connection and try again.";
@@ -601,14 +687,22 @@ function renderExpenses(){
   body.innerHTML = '';
   let total = 0;
   if(expenses.length === 0){
-    body.innerHTML = '<tr><td colspan="5" style="color:var(--ink-soft);">No expenses yet.</td></tr>';
+    body.innerHTML = '<tr><td colspan="6" style="color:var(--ink-soft);">No expenses yet.</td></tr>';
   }
+  const admin = isAdmin();
   expenses.forEach(e=>{
     total += e.amount;
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${e.day}</td><td>${e.paidBy}</td><td>${e.desc}</td><td class="split">${e.split.join(", ")}</td><td class="amt">${fmt(e.amount)}</td>`;
+    const actions = admin
+      ? `<td><button class="rowbtn" data-edit="${e.id}" style="font-family:'IBM Plex Mono',monospace; font-size:.72rem; background:none; border:none; color:var(--river); cursor:pointer;">Edit</button><button class="rowbtn" data-del="${e.id}" style="font-family:'IBM Plex Mono',monospace; font-size:.72rem; background:none; border:none; color:#C0472F; cursor:pointer;">Delete</button></td>`
+      : '';
+    tr.innerHTML = `<td>${e.day}</td><td>${e.paidBy}</td><td>${e.desc}</td><td class="split">${e.split.join(", ")}</td><td class="amt">${fmt(e.amount)}</td>${actions}`;
     body.appendChild(tr);
   });
+  if(admin){
+    document.querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click', ()=>startEditExpense(b.getAttribute('data-edit'))));
+    document.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click', ()=>deleteExpense(b.getAttribute('data-del'))));
+  }
   document.getElementById('expense-total').textContent = fmt(total);
 
   const balances = {};

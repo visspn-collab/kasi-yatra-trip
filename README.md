@@ -63,6 +63,25 @@ That's it — no Google Forms, no Firebase console, no token to hand anyone.
 - The photos button opens your shared Google Drive folder for both viewing and
   uploading.
 
+## Admin (Vishy) controls
+
+Since you register with the name **Vishy**, the page unlocks extra abilities for
+you only:
+- The "Paid by" field is editable, so you can log an expense on anyone's behalf.
+- Every row in the expense table gets **Edit** and **Delete** buttons.
+
+Editing or deleting asks for a PIN the first time each visit — it's currently set
+to **2026** inside `netlify/functions/update-expense.mjs` and
+`netlify/functions/delete-expense.mjs` (search for `ADMIN_PIN`). Change it to
+something only you know before sharing the QR code widely: edit both files the
+same way you'd edit any other file in the GitHub repo, then commit — Netlify
+redeploys automatically.
+
+Worth knowing: this whole scheme checks the *name* someone typed at registration,
+not a real login. Anyone could type "Vishy" as their name, though they'd still be
+blocked from editing/deleting without the PIN. It's a reasonable trade-off for a
+family trip, not bank-grade security.
+
 ## What's still pending from your side
 
 - [ ] Create the GitHub repo and upload these files (steps above)
