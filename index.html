@@ -143,6 +143,18 @@ table.expenses tfoot td{padding:.8rem 1rem; font-family:"IBM Plex Mono", monospa
 .pbtn.primary{background:var(--saffron); color:var(--surface);}
 .pbtn.secondary{background:transparent; border:1px solid var(--line); color:var(--ink);}
 
+/* ---- Temples Index ---- */
+.templegrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:1.1rem; margin-top:1.25rem;}
+.templecard{background:var(--surface); border:1px solid var(--line); border-radius:14px; overflow:hidden; display:flex; flex-direction:column;}
+.templecard .thumb{width:100%; aspect-ratio:4/3; object-fit:cover; background:var(--river-soft); display:block;}
+.templecard .thumb.placeholder{display:flex; align-items:center; justify-content:center; font-size:2.2rem; color:var(--ink-soft);}
+.templecard .tbody{padding:.9rem 1rem 1rem; display:flex; flex-direction:column; gap:.4rem; flex:1;}
+.templecard h3{font-size:1rem; line-height:1.3;}
+.templecard .tnote{font-size:.8rem; color:var(--ink-soft); line-height:1.4; flex:1;}
+.templecard .daylink{align-self:flex-start; font-family:"IBM Plex Mono", monospace; font-size:.72rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase; background:var(--saffron-soft); color:var(--saffron); border:none; padding:.4rem .75rem; border-radius:999px; cursor:pointer; margin-top:.2rem;}
+.templecard .daylink:hover{background:var(--saffron); color:var(--surface);}
+.photocredit{font-size:.68rem; color:var(--ink-soft); opacity:.75; padding:.3rem 1rem 0;}
+
 /* ---- Registration gate ---- */
 .gate{position:fixed; inset:0; background:rgba(20,16,10,0.55); display:flex; align-items:center; justify-content:center; padding:1.5rem; z-index:100;}
 .gate[hidden]{display:none;}
@@ -177,7 +189,8 @@ table.expenses tfoot td{padding:.8rem 1rem; font-family:"IBM Plex Mono", monospa
     <div class="eyebrow">Varanasi · 1–14 Nov 2026 · Family Trip</div>
     <h1>Kasi Yatra 2026</h1>
     <div class="tabs" id="tabs">
-      <button class="tab active" data-tab="itinerary">Itinerary</button>
+      <button class="tab active" data-tab="temples">Temples</button>
+      <button class="tab" data-tab="itinerary">Itinerary</button>
       <button class="tab" data-tab="map">Route Map</button>
       <button class="tab" data-tab="expenses">Expenses</button>
       <button class="tab" data-tab="photos">Photos</button>
@@ -185,8 +198,16 @@ table.expenses tfoot td{padding:.8rem 1rem; font-family:"IBM Plex Mono", monospa
   </div>
 </div>
 
+<!-- ================= TEMPLES INDEX ================= -->
+<section class="page" id="page-temples">
+  <p class="sub">Every temple and ghat on the trip, in one place. As new suggestions come in, Vishy adds them here — each card links to the day it falls on in the Itinerary.</p>
+  <div class="section-head"><h2>Temples &amp; Ghats</h2><span class="count" id="temple-count"></span></div>
+  <div class="templegrid" id="temple-grid"></div>
+  <p class="photocredit">Photos: Wikimedia Commons, where a real photo could be found; a placeholder marks the rest until one is added.</p>
+</section>
+
 <!-- ================= ITINERARY ================= -->
-<section class="page" id="page-itinerary">
+<section class="page" id="page-itinerary" hidden>
   <p class="sub">Temple and ghat visits for the group. This is a living plan — Vishy updates it here as things change, so check back before each day.</p>
 
   <div class="section-head"><h2>Full Itinerary</h2><span class="count">7 days · 20 pilgrims</span></div>
@@ -320,14 +341,49 @@ let expenses = [];
 let editingExpenseId = null;
 
 /* ---------------- Tabs ---------------- */
+function goToTab(tab){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  document.querySelectorAll('.page').forEach(p=>p.hidden = true);
+  document.getElementById('page-' + tab).hidden = false;
+}
 document.querySelectorAll('.tab').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('.page').forEach(p=>p.hidden = true);
-    btn.classList.add('active');
-    document.getElementById('page-' + btn.dataset.tab).hidden = false;
-  });
+  btn.addEventListener('click', ()=>goToTab(btn.dataset.tab));
 });
+
+/* ---------------- Temples Index ---------------- */
+/* To add a new temple: add one object below (image can be a real photo URL, or leave blank for a placeholder). */
+const temples = [
+  {name:"Kashi Vishwanath Temple", day:5, note:"Rudrabhishek, Sparsh Darshan (x2) and Sata Rishi Aarti across Days 5–6.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Kashi_Vishwanath_temple.jpg"},
+  {name:"Kala Bhairava Temple", day:2, note:"Early morning cluster, old city lanes.", img:""},
+  {name:"Pitamaheshwar Temple", day:2, note:"In a well, near Sita Mata Temple.", img:""},
+  {name:"Vaarahi Temple", day:2, note:"Near Meer Ghat.", img:""},
+  {name:"Dwadasa Adityulu (12 Sun Temples)", day:3, note:"Split across Day 3 (temples 1–6) and Day 4 (temples 7–12).", img:""},
+  {name:"Manikarnika Ghat", day:4, note:"Respectful viewing visit, ~12 noon.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Manikarnika%20Ghat%2C%20Varanasi%2C%20Uttar%20Pradesh.jpg"},
+  {name:"Kedareshwar Temple (Kedar Ghat)", day:4, note:"Use transport/boat between ghat points.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Varanasikedarghat.JPG"},
+  {name:"Annapoorna Amma Temple", day:6, note:"Same complex as Kashi Vishwanath, minimal walking.", img:""},
+  {name:"Vishalakshi Amma Temple", day:6, note:"Same complex as Kashi Vishwanath, minimal walking.", img:""},
+  {name:"Tilabhandeswar Temple", day:7, note:"Morning stop before the southern cluster.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Shri%20Tilbhandeshwar%20Mahadev%20Mandir0.jpg"},
+  {name:"Sankata Mochan Hanuman Temple", day:7, note:"Nearby to Durga Temple.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Sankat%20Mochan%20temple%20entrance%2C%20Varanasi%20-%20IRCTC%202017%20(1).jpg"},
+  {name:"Durga Temple", day:7, note:"Nearby to Sankata Mochan Hanuman Temple.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Durga%20Mandir%2C%20Varanasi%2C%20Uttar%20Pradesh%2C%20India%20(2007).jpg"}
+];
+function renderTemples(){
+  const grid = document.getElementById('temple-grid');
+  grid.innerHTML = '';
+  document.getElementById('temple-count').textContent = temples.length + ' places';
+  temples.forEach(t=>{
+    const card = document.createElement('div');
+    card.className = 'templecard';
+    const thumb = t.img
+      ? `<img class="thumb" src="${t.img}" alt="${t.name}" loading="lazy" onerror="this.outerHTML='<div class=&quot;thumb placeholder&quot;>🛕</div>'">`
+      : `<div class="thumb placeholder">🛕</div>`;
+    card.innerHTML = `${thumb}<div class="tbody"><h3>${t.name}</h3><div class="tnote">${t.note}</div><button class="daylink" data-day="${t.day}">Day ${t.day} →</button></div>`;
+    grid.appendChild(card);
+  });
+  grid.querySelectorAll('.daylink').forEach(b=>{
+    b.addEventListener('click', ()=>goToTab('itinerary'));
+  });
+}
+renderTemples();
 
 /* ---------------- Registration gate ---------------- */
 const gate = document.getElementById('gate');
