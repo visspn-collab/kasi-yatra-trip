@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kasi Yatra 2026</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Karla:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root{
+  --ground:#FAF6EF; --surface:#FFFFFF; --ink:#2B241C; --ink-soft:#6B6154; --line:#E4DACB;
+  --river:#3E6E82; --river-soft:#CFE1E6; --saffron:#C0722A; --saffron-soft:#F1DCC3;
+  --marigold:#D9A441; --context:#C9BEAE;
+}
+:root:not([data-theme="light"]){
+  @media (prefers-color-scheme: dark){
+    --ground:#1B1712; --surface:#241F18; --ink:#EDE4D6; --ink-soft:#B2A692; --line:#3A3226;
+    --river:#7FB4C6; --river-soft:#22343A; --saffron:#E0985A; --saffron-soft:#3B2C1C;
+    --marigold:#E8BE6C; --context:#4A4436;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#1B1712; --surface:#241F18; --ink:#EDE4D6; --ink-soft:#B2A692; --line:#3A3226;
+  --river:#7FB4C6; --river-soft:#22343A; --saffron:#E0985A; --saffron-soft:#3B2C1C;
+  --marigold:#E8BE6C; --context:#4A4436;
+}
+*{box-sizing:border-box;}
+body{margin:0; background:var(--ground); color:var(--ink); font-family:"Karla", -apple-system, sans-serif; padding-bottom:4rem;}
+h1,h2,h3{font-family:"Fraunces", Georgia, serif; text-wrap:balance; margin:0;}
+.wrap{max-width:980px; margin:0 auto; padding:0 1.5rem;}
+a{color:var(--river);}
+
+/* ---- Top bar & tabs ---- */
+.topbar{background:var(--surface); border-bottom:1px solid var(--line); padding:1.25rem 0 0;}
+.eyebrow{font-family:"IBM Plex Mono", monospace; font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--saffron);}
+.topbar h1{font-size:1.7rem; font-weight:600; margin:.35rem 0 1rem;}
+.tabs{display:flex; gap:.25rem; overflow-x:auto;}
+.tab{
+  font-family:"IBM Plex Mono", monospace; font-size:.82rem; padding:.75rem 1.1rem;
+  background:none; border:none; border-bottom:2px solid transparent; color:var(--ink-soft); cursor:pointer; white-space:nowrap;
+}
+.tab.active{color:var(--saffron); border-bottom-color:var(--saffron); font-weight:600;}
+.tab:hover{color:var(--ink);}
+
+.page{max-width:980px; margin:0 auto; padding:2rem 1.5rem;}
+.page[hidden]{display:none;}
+
+.sub{color:var(--ink-soft); margin-top:.5rem; max-width:60ch; line-height:1.5; font-size:.98rem;}
+
+/* ---- Shared cards ---- */
+.section-head{margin:2.5rem 0 1rem; display:flex; align-items:baseline; gap:.75rem; border-bottom:1px solid var(--line); padding-bottom:.6rem;}
+.section-head:first-child{margin-top:0;}
+.section-head h2{font-size:1.35rem;}
+.section-head .count{font-family:"IBM Plex Mono", monospace; font-size:.75rem; color:var(--ink-soft);}
+.tablewrap{overflow-x:auto; background:var(--surface); border:1px solid var(--line); border-radius:14px;}
+.note-strip{background:var(--saffron-soft); border-radius:10px; padding:.85rem 1.1rem; font-size:.83rem; color:var(--ink); margin-bottom:1.25rem; line-height:1.5;}
+
+table.itin{width:100%; border-collapse:collapse; font-size:.88rem; min-width:680px;}
+table.itin thead th{text-align:left; font-family:"IBM Plex Mono", monospace; font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); padding:.8rem 1rem; border-bottom:1px solid var(--line);}
+table.itin td{padding:.7rem 1rem; vertical-align:top; border-bottom:1px solid var(--line);}
+table.itin tr.daystart td{border-top:2px solid var(--line);}
+table.itin tr:last-child td{border-bottom:none;}
+table.itin .daycell{font-family:"Fraunces", serif; font-weight:600; color:var(--saffron); white-space:nowrap;}
+table.itin .timecell{font-family:"IBM Plex Mono", monospace; font-size:.78rem; color:var(--ink-soft); white-space:nowrap;}
+table.itin .notecell{color:var(--ink-soft); font-size:.83rem;}
+
+.checklist{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:1.1rem 1.35rem; margin-top:1.25rem;}
+.checklist ul{margin:0; padding:0; list-style:none;}
+.checklist li{display:flex; gap:.6rem; padding:.55rem 0; border-top:1px solid var(--line); font-size:.88rem; line-height:1.4;}
+.checklist li:first-child{border-top:none;}
+.checklist li::before{content:""; width:14px; height:14px; margin-top:.2rem; flex-shrink:0; border:1.5px solid var(--river); border-radius:4px;}
+
+/* ---- Map ---- */
+.daybar{display:flex; flex-wrap:wrap; gap:.5rem; margin:0 0 1.5rem;}
+.daybtn{font-family:"IBM Plex Mono", monospace; font-size:.82rem; border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); padding:.5rem .9rem; border-radius:999px; cursor:pointer;}
+.daybtn:hover{border-color:var(--saffron);}
+.daybtn.active{background:var(--saffron); border-color:var(--saffron); color:var(--surface); font-weight:600;}
+.panel{display:grid; grid-template-columns:1.4fr 1fr; gap:1.5rem; align-items:start;}
+@media (max-width:760px){ .panel{grid-template-columns:1fr;} }
+.mapcard{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:1rem;}
+.mapcard svg{width:100%; height:auto; display:block;}
+.legend{display:flex; gap:1.1rem; flex-wrap:wrap; font-size:.76rem; color:var(--ink-soft); margin-top:.75rem; padding-top:.75rem; border-top:1px solid var(--line);}
+.legend span{display:inline-flex; align-items:center; gap:.4rem;}
+.dot{width:9px; height:9px; border-radius:50%; display:inline-block;}
+.infocard{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:1.25rem 1.35rem;}
+.infocard h3{font-size:1.25rem; margin-bottom:.15rem;}
+.infocard .tag{font-family:"IBM Plex Mono", monospace; font-size:.72rem; color:var(--river); letter-spacing:.06em; text-transform:uppercase; margin-bottom:.9rem; display:block;}
+.stop{display:flex; gap:.7rem; padding:.6rem 0; border-top:1px solid var(--line);}
+.stop:first-of-type{border-top:none;}
+.stopnum{font-family:"IBM Plex Mono", monospace; font-size:.8rem; color:var(--surface); background:var(--saffron); width:1.35rem; height:1.35rem; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:.1rem;}
+.stopbody b{font-size:.94rem;}
+.stoptime{font-family:"IBM Plex Mono", monospace; font-size:.72rem; color:var(--ink-soft); display:block; margin-top:.1rem;}
+.stopnote{font-size:.82rem; color:var(--ink-soft); margin-top:.2rem; line-height:1.4;}
+.footnote{margin-top:1.5rem; font-size:.8rem; color:var(--ink-soft); line-height:1.5; max-width:70ch;}
+.hotellink{font-size:.82rem; margin-top:.5rem;}
+
+/* ---- Expenses ---- */
+.expense-form{display:grid; grid-template-columns:1fr 1fr 1.4fr 1fr auto; gap:.6rem; margin-bottom:1rem;}
+@media (max-width:820px){ .expense-form{grid-template-columns:1fr 1fr;} }
+.expense-form input{font-family:"Karla", sans-serif; font-size:.86rem; padding:.6rem .8rem; border:1px solid var(--line); border-radius:8px; background:var(--ground); color:var(--ink);}
+.expense-form input:focus-visible{outline:2px solid var(--saffron); outline-offset:1px;}
+.splitbox{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:.9rem 1rem; margin-bottom:1rem;}
+.splitbox .splitlabel{font-family:"IBM Plex Mono", monospace; font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:.6rem; display:block;}
+.chiprow{display:flex; flex-wrap:wrap; gap:.5rem;}
+.chip{font-size:.82rem; padding:.4rem .8rem; border-radius:999px; border:1px solid var(--line); background:var(--ground); cursor:pointer; user-select:none;}
+.chip.on{background:var(--saffron); border-color:var(--saffron); color:var(--surface); font-weight:600;}
+.chip.all{border-style:dashed;}
+.submitbar{display:flex; align-items:center; gap:.9rem; margin-bottom:1.5rem;}
+.submitbar button{font-family:"IBM Plex Mono", monospace; font-size:.85rem; font-weight:600; padding:.65rem 1.3rem; border-radius:8px; border:1px solid var(--saffron); background:var(--saffron); color:var(--surface); cursor:pointer;}
+.form-status{font-size:.8rem; color:var(--ink-soft);}
+.form-status.err{color:#C0472F;}
+
+.expense-grid{display:grid; grid-template-columns:1.5fr 1fr; gap:1.5rem; align-items:start;}
+@media (max-width:760px){ .expense-grid{grid-template-columns:1fr;} }
+table.expenses{width:100%; border-collapse:collapse; font-size:.88rem; min-width:520px;}
+table.expenses thead th{text-align:left; font-family:"IBM Plex Mono", monospace; font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); padding:.75rem 1rem; border-bottom:1px solid var(--line);}
+table.expenses td{padding:.65rem 1rem; border-bottom:1px solid var(--line); vertical-align:top;}
+table.expenses tr:last-child td{border-bottom:none;}
+table.expenses .amt{font-family:"IBM Plex Mono", monospace; font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap;}
+table.expenses .split{font-size:.78rem; color:var(--ink-soft);}
+table.expenses tfoot td{padding:.8rem 1rem; font-family:"IBM Plex Mono", monospace; font-weight:600; border-top:2px solid var(--line);}
+.balancecard{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:1.15rem 1.35rem;}
+.balancecard h3{font-family:"Fraunces", serif; font-size:1.05rem; margin:0 0 .8rem;}
+.balancerow{display:flex; justify-content:space-between; align-items:center; padding:.5rem 0; border-top:1px solid var(--line); font-size:.88rem;}
+.balancerow:first-of-type{border-top:none;}
+.balancerow .amt{font-family:"IBM Plex Mono", monospace; font-variant-numeric:tabular-nums; font-weight:600;}
+.amt.pos{color:#3E7D4C;}
+.amt.neg{color:#C0472F;}
+:root:not([data-theme="light"]){ @media (prefers-color-scheme: dark){ .amt.pos{color:#7FCB94;} .amt.neg{color:#E08B77;} } }
+:root[data-theme="dark"]{ .amt.pos{color:#7FCB94;} .amt.neg{color:#E08B77;} }
+.settleup{margin-top:1.4rem; padding-top:1.1rem; border-top:1px solid var(--line);}
+.settleup h3{font-family:"Fraunces", serif; font-size:1.05rem; margin:0 0 .7rem;}
+.settleitem{display:flex; align-items:center; gap:.5rem; font-size:.86rem; padding:.4rem 0;}
+.settleitem .arrow{color:var(--saffron); font-family:"IBM Plex Mono", monospace;}
+.refreshbar{display:flex; align-items:center; gap:.7rem; font-size:.78rem; color:var(--ink-soft); margin-bottom:.9rem;}
+.refreshbar button{font-family:"IBM Plex Mono", monospace; font-size:.75rem; padding:.4rem .8rem; border-radius:999px; border:1px solid var(--line); background:var(--surface); color:var(--ink); cursor:pointer;}
+.refreshbar button:hover{border-color:var(--saffron);}
+
+/* ---- Photos ---- */
+.photocard{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:2.2rem 1.5rem; text-align:center;}
+.photocard p{color:var(--ink-soft); font-size:.92rem; max-width:46ch; margin:.5rem auto 1.4rem; line-height:1.5;}
+.photobtns{display:flex; gap:.8rem; justify-content:center; flex-wrap:wrap;}
+.pbtn{display:inline-flex; align-items:center; gap:.5rem; font-weight:600; font-size:.92rem; padding:.7rem 1.4rem; border-radius:999px; text-decoration:none;}
+.pbtn.primary{background:var(--saffron); color:var(--surface);}
+.pbtn.secondary{background:transparent; border:1px solid var(--line); color:var(--ink);}
+
+/* ---- Registration gate ---- */
+.gate{position:fixed; inset:0; background:rgba(20,16,10,0.55); display:flex; align-items:center; justify-content:center; padding:1.5rem; z-index:100;}
+.gate[hidden]{display:none;}
+.gatecard{background:var(--surface); border-radius:16px; padding:2rem 1.75rem; max-width:380px; width:100%; box-shadow:0 20px 60px rgba(0,0,0,.25);}
+.gatecard .eyebrow{display:block; margin-bottom:.4rem;}
+.gatecard h2{font-size:1.4rem; margin-bottom:.5rem;}
+.gatecard p{color:var(--ink-soft); font-size:.88rem; line-height:1.5; margin-bottom:1.2rem;}
+.gatecard input{width:100%; font-family:"Karla", sans-serif; font-size:.95rem; padding:.7rem .9rem; border:1px solid var(--line); border-radius:8px; background:var(--ground); color:var(--ink); margin-bottom:.7rem;}
+.gatecard button{width:100%; font-family:"IBM Plex Mono", monospace; font-size:.88rem; font-weight:600; padding:.75rem; border-radius:8px; border:none; background:var(--saffron); color:var(--surface); cursor:pointer;}
+.gatecard .gate-status{font-size:.8rem; color:#C0472F; min-height:1.2em; margin-top:.4rem;}
+
+.whoami{position:fixed; bottom:1rem; right:1rem; font-family:"IBM Plex Mono", monospace; font-size:.72rem; color:var(--ink-soft); background:var(--surface); border:1px solid var(--line); padding:.4rem .8rem; border-radius:999px; z-index:5;}
+.whoami button{background:none; border:none; color:var(--river); font-family:inherit; font-size:inherit; cursor:pointer; margin-left:.4rem; padding:0;}
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate">
+  <div class="gatecard">
+    <span class="eyebrow">Kasi Yatra · 1–14 Nov 2026</span>
+    <h2>Welcome to the family trip page</h2>
+    <p>Enter your name once so we know who's who on the expense list — you won't be asked again on this phone.</p>
+    <input type="text" id="gate-name" placeholder="Your name" maxlength="60">
+    <input type="text" id="gate-arrival" placeholder="Arrival date (optional, e.g. Nov 3)" maxlength="40">
+    <button id="gate-submit">Continue</button>
+    <div class="gate-status" id="gate-status"></div>
+  </div>
+</div>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="eyebrow">Varanasi · 1–14 Nov 2026 · Family Trip</div>
+    <h1>Kasi Yatra 2026</h1>
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-tab="itinerary">Itinerary</button>
+      <button class="tab" data-tab="map">Route Map</button>
+      <button class="tab" data-tab="expenses">Expenses</button>
+      <button class="tab" data-tab="photos">Photos</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= ITINERARY ================= -->
+<section class="page" id="page-itinerary">
+  <p class="sub">Temple and ghat visits for the group. This is a living plan — Vishy updates it here as things change, so check back before each day.</p>
+
+  <div class="section-head"><h2>Full Itinerary</h2><span class="count">7 days · 20 pilgrims</span></div>
+  <div class="tablewrap">
+    <table class="itin">
+      <thead><tr><th>Day</th><th>Time</th><th>Temple / Ghat</th><th>Notes</th></tr></thead>
+      <tbody id="itin-body"></tbody>
+    </table>
+  </div>
+
+  <div class="section-head"><h2>Booking Checklist</h2><span class="count">before you travel</span></div>
+  <div class="checklist"><ul id="checklist-body"></ul></div>
+</section>
+
+<!-- ================= ROUTE MAP ================= -->
+<section class="page" id="page-map" hidden>
+  <p class="sub">A schematic guide, not a survey map — positions are relative only. The hotel pin is <b>temporary</b> until Vishy confirms the actual hotel.</p>
+  <p class="hotellink">📍 <a href="https://maps.app.goo.gl/QPgAg6EF1AiwTPYE9?g_st=ic" target="_blank" rel="noopener">Open hotel location in Google Maps (temporary)</a></p>
+
+  <div class="daybar" id="daybar"></div>
+  <div class="panel">
+    <div class="mapcard">
+      <svg id="mapsvg" viewBox="0 0 700 900" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="maptitle">
+        <title id="maptitle">Schematic map of Varanasi temple and ghat locations</title>
+        <path d="M 605 20 C 560 160, 610 260, 555 340 C 500 420, 545 520, 500 620 C 465 690, 500 760, 460 860"
+              fill="none" stroke="var(--river-soft)" stroke-width="46" stroke-linecap="round"/>
+        <path d="M 605 20 C 560 160, 610 260, 555 340 C 500 420, 545 520, 500 620 C 465 690, 500 760, 460 860"
+              fill="none" stroke="var(--river)" stroke-width="1.5" stroke-dasharray="1 10" stroke-linecap="round" opacity="0.6"/>
+        <text x="640" y="40" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--river)" transform="rotate(6 640 40)">N</text>
+        <text x="420" y="885" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--river)">S</text>
+        <text x="612" y="450" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="var(--river)" opacity="0.75" transform="rotate(78 612 450)">GANGA →</text>
+        <text x="330" y="205" font-family="IBM Plex Mono, monospace" font-size="10.5" letter-spacing="1" fill="var(--ink-soft)">OLD CITY LANES</text>
+        <text x="255" y="695" font-family="IBM Plex Mono, monospace" font-size="10.5" letter-spacing="1" fill="var(--ink-soft)">DURGA KUND / SOUTH ZONE</text>
+        <ellipse cx="368" cy="775" rx="72" ry="58" fill="var(--context)" opacity="0.18"/>
+
+        <g id="context-points" font-family="Karla, sans-serif" font-size="11.5" fill="var(--ink-soft)">
+          <g data-pt="hotel"><rect x="435" y="352" width="10" height="10" rx="2" fill="var(--marigold)"/><text x="450" y="361" font-weight="600" fill="var(--ink)">Hotel (temp.)</text></g>
+          <g data-pt="manikarnika"><circle cx="562" cy="258" r="6"/><text x="574" y="255">Manikarnika Ghat</text></g>
+          <g data-pt="meer"><circle cx="508" cy="300" r="4"/><text x="519" y="298" font-size="10">Meer Ghat</text></g>
+          <g data-pt="dashashwamedh"><circle cx="540" cy="345" r="5"/><text x="551" y="343">Dashashwamedh Ghat</text></g>
+          <g data-pt="kedar"><circle cx="503" cy="470" r="6"/><text x="440" y="465" text-anchor="end">Kedareshwar Temple</text><text x="440" y="479" text-anchor="end" font-size="9.5">(Kedar Ghat)</text></g>
+          <g data-pt="assi"><circle cx="458" cy="825" r="5"/><text x="469" y="823">Assi Ghat</text></g>
+          <g data-pt="kalabhairava"><circle cx="392" cy="248" r="6"/><text x="330" y="245" text-anchor="end">Kala Bhairava</text></g>
+          <g data-pt="pitamaheshwar"><circle cx="412" cy="278" r="6"/><text x="350" y="290" text-anchor="end">Pitamaheshwar</text><text x="350" y="301" text-anchor="end" font-size="9.5">(in a well, near Sita Mata)</text></g>
+          <g data-pt="vaarahi"><circle cx="486" cy="312" r="6"/><text x="486" y="330" text-anchor="middle" font-size="10">Vaarahi</text></g>
+          <g data-pt="vishwanath"><circle cx="440" cy="298" r="7"/><text x="440" y="220" text-anchor="middle" font-weight="600" fill="var(--ink)">Kashi Vishwanath</text></g>
+          <g data-pt="annapurna"><circle cx="462" cy="288" r="5"/><text x="475" y="270" font-size="10">Annapurna Amma</text></g>
+          <g data-pt="vishalakshi"><circle cx="470" cy="310" r="5"/><text x="483" y="313" font-size="10">Vishalakshi Amma</text></g>
+          <g data-pt="tilabhandeswar"><circle cx="398" cy="330" r="5"/><text x="336" y="333" text-anchor="end" font-size="10">Tilabhandeswar</text></g>
+          <g data-pt="sankatamochan"><circle cx="332" cy="710" r="6"/><text x="270" y="708" text-anchor="end">Sankata Mochan Hanuman</text></g>
+          <g data-pt="durga"><circle cx="352" cy="732" r="6"/><text x="270" y="735" text-anchor="end">Durga Temple</text></g>
+          <g data-pt="aditya"><circle cx="368" cy="775" r="6"/><text x="368" y="850" text-anchor="middle">Dwadasa Adityulu</text><text x="368" y="863" text-anchor="middle" font-size="9.5">(12 Sun temples)</text></g>
+        </g>
+        <g id="active-route"></g>
+      </svg>
+      <div class="legend">
+        <span><span class="dot" style="background:var(--saffron)"></span>Today's stops</span>
+        <span><span class="dot" style="background:var(--marigold)"></span>Hotel</span>
+        <span><span class="dot" style="background:var(--context)"></span>Other locations</span>
+      </div>
+    </div>
+    <div class="infocard" id="infocard"></div>
+  </div>
+  <p class="footnote">Positions are relative, not to scale. Confirm turn-by-turn routing locally, and keep ghat-side walking to a minimum by using transport or a boat between river points.</p>
+</section>
+
+<!-- ================= EXPENSES ================= -->
+<section class="page" id="page-expenses" hidden>
+  <div class="note-strip">Add an expense below — pick who it should be split among from everyone who's registered so far. Totals and balances update for everyone automatically.</div>
+
+  <form class="expense-form" id="expense-form">
+    <input type="text" id="f-day" placeholder="Day (e.g. Day 3)" required>
+    <input type="text" id="f-desc" placeholder="What was it for" required style="grid-column: span 2;">
+    <input type="number" id="f-amount" placeholder="Amount (₹)" min="0" step="1" required>
+    <input type="text" id="f-paidby" placeholder="Paid by" required readonly>
+  </form>
+
+  <div class="splitbox">
+    <span class="splitlabel">Split among</span>
+    <div class="chiprow" id="split-chips"></div>
+  </div>
+
+  <div class="submitbar">
+    <button type="button" id="f-submit">Add Expense</button>
+    <span class="form-status" id="form-status"></span>
+  </div>
+
+  <div class="refreshbar">
+    <button id="refresh-btn" type="button">↻ Refresh now</button>
+    <span id="last-updated">Not loaded yet</span>
+  </div>
+
+  <div class="expense-grid">
+    <div class="tablewrap">
+      <table class="expenses">
+        <thead><tr><th>Day</th><th>Paid by</th><th>For</th><th>Split among</th><th style="text-align:right">Amount</th></tr></thead>
+        <tbody id="expense-body"></tbody>
+        <tfoot><tr><td colspan="4">Total spent</td><td class="amt" id="expense-total"></td></tr></tfoot>
+      </table>
+    </div>
+    <div class="balancecard">
+      <h3>Net Balance</h3>
+      <div id="balance-body"></div>
+      <div class="settleup"><h3>Settle Up</h3><div id="settle-body"></div></div>
+    </div>
+  </div>
+  <p class="footnote">Spotted a mistake in an entry? Let Vishy know — he can correct it directly.</p>
+</section>
+
+<!-- ================= PHOTOS ================= -->
+<section class="page" id="page-photos" hidden>
+  <div class="photocard">
+    <h3 style="font-size:1.3rem; margin-bottom:.3rem;">Trip Photos</h3>
+    <p>All photos live in one shared Google Drive folder — everyone registered can view what's there and add their own.</p>
+    <div class="photobtns">
+      <a class="pbtn primary" href="https://drive.google.com/drive/folders/1wReFBUpxk0pI2c8gmSuxEVkM-uoxXEj2?usp=sharing" target="_blank" rel="noopener">📤 Upload Photos</a>
+      <a class="pbtn secondary" href="https://drive.google.com/drive/folders/1wReFBUpxk0pI2c8gmSuxEVkM-uoxXEj2?usp=sharing" target="_blank" rel="noopener">🖼️ View Photos</a>
+    </div>
+  </div>
+</section>
+
+<div class="whoami" id="whoami" hidden></div>
+
+<script>
+/* ---------------- Tabs ---------------- */
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p=>p.hidden = true);
+    btn.classList.add('active');
+    document.getElementById('page-' + btn.dataset.tab).hidden = false;
+  });
+});
+
+/* ---------------- Registration gate ---------------- */
+const gate = document.getElementById('gate');
+const whoami = document.getElementById('whoami');
+
+function currentUser(){ return localStorage.getItem('kasiName') || ''; }
+
+function showWhoAmI(){
+  const name = currentUser();
+  if(!name){ whoami.hidden = true; return; }
+  whoami.hidden = false;
+  whoami.innerHTML = `Registered as <b>${name}</b> <button id="change-name">change</button>`;
+  document.getElementById('change-name').addEventListener('click', ()=>{ gate.hidden = false; });
+}
+
+document.getElementById('gate-submit').addEventListener('click', async ()=>{
+  const nameInput = document.getElementById('gate-name');
+  const arrivalInput = document.getElementById('gate-arrival');
+  const status = document.getElementById('gate-status');
+  const name = nameInput.value.trim();
+  const arrivalDate = arrivalInput.value.trim();
+  if(!name){ status.textContent = 'Please enter your name.'; return; }
+  status.textContent = 'Saving…';
+  try{
+    const res = await fetch('/api/register', {
+      method: 'POST',
+      headers: {'content-type':'application/json'},
+      body: JSON.stringify({ name, arrivalDate })
+    });
+    if(!res.ok) throw new Error('failed');
+    localStorage.setItem('kasiName', name);
+    gate.hidden = true;
+    status.textContent = '';
+    document.getElementById('f-paidby').value = name;
+    showWhoAmI();
+    loadRegistrations();
+  }catch(err){
+    status.textContent = "Couldn't register — check your connection and try again.";
+  }
+});
+
+if(currentUser()){
+  gate.hidden = true;
+  document.getElementById('f-paidby').value = currentUser();
+}
+showWhoAmI();
+
+/* ---------------- Itinerary ---------------- */
+const fullItin = [
+  {day:1, rows:[
+    {time:"—", place:"Arrival & Rest", note:"Check-in, rest after travel. No temple activity — recovery day."},
+    {time:"Evening (optional)", place:"Ganga Aarti — Dashashwamedh Ghat", note:"Seated/boat viewing only, no walking required."}
+  ]},
+  {day:2, rows:[
+    {time:"~5:00 AM", place:"Kala Bhairava Temple", note:"Early morning cluster — old city area."},
+    {time:"~6:00 AM", place:"Pitamaheshwar Temple (in a well, near Sita Mata Temple)", note:"Part of same early cluster."},
+    {time:"~7:00 AM", place:"Vaarahi Temple (near Meer Ghat)", note:"Part of same early cluster."},
+    {time:"Rest of day", place:"Free / Rest", note:"Breakfast and rest. Arrange transport/wheelchairs the night before."}
+  ]},
+  {day:3, rows:[
+    {time:"~9:30 AM onwards", place:"Dwadasa Adityulu — Part 1 (Temples 1–6)", note:"First 6 of the 12 Aditya (Sun) temples, relaxed pace with breaks."},
+    {time:"Afternoon", place:"Free / Rest", note:""}
+  ]},
+  {day:4, rows:[
+    {time:"~9:30 AM onwards", place:"Dwadasa Adityulu — Part 2 (Temples 7–12)", note:"Remaining 6 Aditya temples, completing the circuit."},
+    {time:"~12:00 Noon", place:"Manikarnika Ghat", note:"Respectful viewing visit."},
+    {time:"Onward", place:"Kedareshwar Temple (Kedar Ghat)", note:"Use transport/boat between ghat points to minimise walking on steps."},
+    {time:"Afternoon", place:"Free / Rest", note:"Fuller day — keep pace unhurried."}
+  ]},
+  {day:5, rows:[
+    {time:"~6:00–8:00 AM", place:"Kashi Vishwanath Temple — Rudrabhishek", note:"Book slot in advance; confirm on official portal."},
+    {time:"Mid-morning", place:"Free / Rest", note:"Return to hotel for rest and breakfast."},
+    {time:"~10:00–11:00 AM", place:"Kashi Vishwanath Temple — Sparsh Darshan #1", note:"Confirm exact slot on booking."},
+    {time:"Afternoon/Evening", place:"Free / Rest", note:"No further activity — early-start day."}
+  ]},
+  {day:6, rows:[
+    {time:"~9:00–11:00 AM", place:"Kashi Vishwanath Temple — Sparsh Darshan #2", note:"Confirm exact slot on booking."},
+    {time:"Late morning", place:"Annapoorna Amma Temple", note:"Same complex, minimal walking."},
+    {time:"Late morning", place:"Vishalakshi Amma Temple", note:"Same complex, minimal walking."},
+    {time:"Afternoon", place:"Free / Rest", note:""},
+    {time:"~7:00–8:00 PM", place:"Kashi Vishwanath Temple — Sata Rishi Aarti", note:"Confirm exact slot on booking."}
+  ]},
+  {day:7, rows:[
+    {time:"~9:30 AM", place:"Tilabhandeswar Temple", note:""},
+    {time:"Onward", place:"Sankata Mochan Hanuman Temple", note:"Nearby to Durga Temple."},
+    {time:"Onward", place:"Durga Temple", note:"Nearby to Sankata Mochan Hanuman Temple."},
+    {time:"Afternoon", place:"Rest, Packing, Departure Prep", note:""}
+  ]}
+];
+const itinBody = document.getElementById('itin-body');
+fullItin.forEach(block=>{
+  block.rows.forEach((r,i)=>{
+    const tr = document.createElement('tr');
+    if(i===0) tr.className = 'daystart';
+    tr.innerHTML = `<td class="daycell">${i===0 ? 'Day '+block.day : ''}</td><td class="timecell">${r.time}</td><td>${r.place}</td><td class="notecell">${r.note}</td>`;
+    itinBody.appendChild(tr);
+  });
+});
+const checklistItems = [
+  "Confirm Rudrabhishek slot (Day 5, early morning) and book",
+  "Confirm Sparsh Darshan Day 5 slot and book for all 20",
+  "Confirm Sparsh Darshan Day 6 slot and book for all 20",
+  "Confirm Sata Rishi Aarti Day 6 evening slot and book",
+  "Arrange wheelchairs/support staff with Kashi Vishwanath Temple Trust for Days 5 and 6",
+  "Arrange private transport for the group throughout (especially the Day 2 early outing and Day 5 Rudrabhishek)",
+  "Confirm opening/ritual times for Kala Bhairava, Pitamaheshwar, and Vaarahi closer to the visit date",
+  "Confirm final hotel and update the Route Map pin",
+  "Add meals/restaurant plans (to be filled in later)"
+];
+const checklistBody = document.getElementById('checklist-body');
+checklistItems.forEach(item=>{ const li = document.createElement('li'); li.textContent = item; checklistBody.appendChild(li); });
+
+/* ---------------- Route Map ---------------- */
+const days = {
+  1: { label:"Arrival & Rest", tag:"Day 1", route:[], stops:[{label:"Hotel", time:"On arrival", note:"Check-in and rest after travel."}] },
+  2: { label:"Early Morning Cluster", tag:"Day 2", route:["kalabhairava","pitamaheshwar","vaarahi"], stops:[
+      {label:"Kala Bhairava Temple", time:"~5:00 AM", note:"Old-city lanes."},
+      {label:"Pitamaheshwar Temple", time:"~6:00 AM", note:"In a well, near Sita Mata Temple."},
+      {label:"Vaarahi Temple", time:"~7:00 AM", note:"Near Meer Ghat."}
+  ]},
+  3: { label:"Dwadasa Adityulu — Part 1", tag:"Day 3", route:["aditya"], stops:[{label:"Dwadasa Adityulu, Temples 1–6", time:"~9:30 AM onwards", note:"First half of the circuit, relaxed pace."}] },
+  4: { label:"Adityulu Pt. 2 + River Points", tag:"Day 4", route:["aditya","manikarnika","kedar"], stops:[
+      {label:"Dwadasa Adityulu, Temples 7–12", time:"~9:30 AM onwards", note:"Completes the circuit."},
+      {label:"Manikarnika Ghat", time:"~12:00 Noon", note:"Respectful viewing visit."},
+      {label:"Kedareshwar Temple (Kedar Ghat)", time:"Onward", note:"Use transport/boat between ghat points."}
+  ]},
+  5: { label:"Kashi Vishwanath — Rudrabhishek", tag:"Day 5", route:["vishwanath"], stops:[
+      {label:"Kashi Vishwanath — Rudrabhishek", time:"~6:00–8:00 AM", note:"Confirm slot on booking."},
+      {label:"Kashi Vishwanath — Sparsh Darshan #1", time:"~10:00–11:00 AM", note:"Same temple, after a rest break."}
+  ]},
+  6: { label:"Sparsh Darshan #2 + Sata Rishi Aarti", tag:"Day 6", route:["vishwanath","annapurna","vishalakshi"], stops:[
+      {label:"Kashi Vishwanath — Sparsh Darshan #2", time:"~9:00–11:00 AM", note:"Confirm slot on booking."},
+      {label:"Annapurna Amma Temple", time:"Late morning", note:"Same complex, minimal walking."},
+      {label:"Vishalakshi Amma Temple", time:"Late morning", note:"Same complex, minimal walking."},
+      {label:"Kashi Vishwanath — Sata Rishi Aarti", time:"~7:00–8:00 PM", note:"Evening return to the same temple."}
+  ]},
+  7: { label:"South Lanes + Departure", tag:"Day 7", route:["tilabhandeswar","sankatamochan","durga"], stops:[
+      {label:"Tilabhandeswar Temple", time:"~9:30 AM", note:""},
+      {label:"Sankata Mochan Hanuman Temple", time:"Onward", note:"Nearby to Durga Temple."},
+      {label:"Durga Temple", time:"Onward", note:"Nearby to Sankata Mochan."}
+  ]}
+};
+const coords = {
+  manikarnika:[562,258], meer:[508,300], dashashwamedh:[540,345], kedar:[503,470], assi:[458,825],
+  kalabhairava:[392,248], pitamaheshwar:[412,278], vaarahi:[486,312], vishwanath:[440,298],
+  annapurna:[462,288], vishalakshi:[470,310], tilabhandeswar:[398,330],
+  sankatamochan:[332,710], durga:[352,732], aditya:[368,775]
+};
+const daybar = document.getElementById('daybar');
+Object.keys(days).forEach(d=>{
+  const b = document.createElement('button');
+  b.className = 'daybtn'; b.textContent = 'Day ' + d; b.setAttribute('data-day', d);
+  b.addEventListener('click', ()=>selectDay(d));
+  daybar.appendChild(b);
+});
+function selectDay(d){
+  document.querySelectorAll('.daybtn').forEach(b=>b.classList.toggle('active', b.getAttribute('data-day')===d));
+  const day = days[d]; const routeIds = day.route;
+  document.querySelectorAll('#context-points > g').forEach(g=>{
+    const id = g.getAttribute('data-pt');
+    if(id === 'hotel') return;
+    const active = routeIds.includes(id);
+    g.querySelectorAll('circle').forEach(c=>{ c.setAttribute('fill', active ? 'var(--saffron)' : 'var(--context)'); c.setAttribute('r', active ? 7 : c.getAttribute('r')); });
+    g.querySelectorAll('text').forEach(t=>{ t.setAttribute('fill', active ? 'var(--ink)' : 'var(--ink-soft)'); t.setAttribute('font-weight', active ? 600 : 400); });
+  });
+  const rg = document.getElementById('active-route'); rg.innerHTML = '';
+  if(routeIds.length > 1){
+    const pts = routeIds.map(id=>coords[id]).map(p=>p.join(',')).join(' ');
+    const line = document.createElementNS('http://www.w3.org/2000/svg','polyline');
+    line.setAttribute('points', pts); line.setAttribute('fill','none'); line.setAttribute('stroke','var(--saffron)');
+    line.setAttribute('stroke-width','2'); line.setAttribute('stroke-dasharray','5 5'); rg.appendChild(line);
+  }
+  routeIds.forEach((id,i)=>{
+    const [x,y] = coords[id];
+    const num = document.createElementNS('http://www.w3.org/2000/svg','text');
+    num.setAttribute('x', x); num.setAttribute('y', y - 12); num.setAttribute('text-anchor','middle');
+    num.setAttribute('font-family','IBM Plex Mono, monospace'); num.setAttribute('font-size','11'); num.setAttribute('font-weight','600');
+    num.setAttribute('fill','var(--saffron)'); num.textContent = (i+1); rg.appendChild(num);
+  });
+  const card = document.getElementById('infocard');
+  let html = `<span class="tag">${day.tag}</span><h3>${day.label}</h3>`;
+  day.stops.forEach((s,i)=>{
+    html += `<div class="stop"><div class="stopnum">${routeIds.length ? (i+1<=routeIds.length? i+1 : '·') : '·'}</div>
+      <div class="stopbody"><b>${s.label}</b><span class="stoptime">${s.time}</span>${s.note ? `<div class="stopnote">${s.note}</div>` : ''}</div></div>`;
+  });
+  card.innerHTML = html;
+}
+selectDay('1');
+
+/* ---------------- Expenses ---------------- */
+const fmt = n => "₹" + Number(n||0).toLocaleString("en-IN", {maximumFractionDigits:0});
+let registeredNames = [];
+let selectedSplit = new Set();
+let expenses = [];
+
+function renderChips(){
+  const box = document.getElementById('split-chips');
+  box.innerHTML = '';
+  const allChip = document.createElement('div');
+  allChip.className = 'chip all' + (selectedSplit.has('__ALL__') ? ' on' : '');
+  allChip.textContent = 'All registered';
+  allChip.addEventListener('click', ()=>{
+    if(selectedSplit.has('__ALL__')){ selectedSplit.clear(); }
+    else { selectedSplit = new Set(['__ALL__', ...registeredNames]); }
+    renderChips();
+  });
+  box.appendChild(allChip);
+  registeredNames.forEach(name=>{
+    const chip = document.createElement('div');
+    chip.className = 'chip' + (selectedSplit.has(name) ? ' on' : '');
+    chip.textContent = name;
+    chip.addEventListener('click', ()=>{
+      selectedSplit.delete('__ALL__');
+      if(selectedSplit.has(name)) selectedSplit.delete(name); else selectedSplit.add(name);
+      renderChips();
+    });
+    box.appendChild(chip);
+  });
+}
+
+async function loadRegistrations(){
+  try{
+    const res = await fetch('/api/get-registrations');
+    const data = await res.json();
+    registeredNames = data.names || [];
+    renderChips();
+  }catch(err){ /* keep whatever we had */ }
+}
+
+document.getElementById('f-submit').addEventListener('click', async ()=>{
+  const status = document.getElementById('form-status');
+  const day = document.getElementById('f-day').value.trim();
+  const paidBy = document.getElementById('f-paidby').value.trim();
+  const desc = document.getElementById('f-desc').value.trim();
+  const amount = Number(document.getElementById('f-amount').value);
+  const split = selectedSplit.has('__ALL__') ? registeredNames.slice() : Array.from(selectedSplit);
+
+  if(!day || !paidBy || !desc || !split.length || !(amount >= 0)){
+    status.textContent = 'Please fill in every field and pick who it splits among.';
+    status.className = 'form-status err';
+    return;
+  }
+  status.textContent = 'Saving…'; status.className = 'form-status';
+  try{
+    const res = await fetch('/api/add-expense', {
+      method:'POST', headers:{'content-type':'application/json'},
+      body: JSON.stringify({ day, paidBy, desc, amount, split })
+    });
+    if(!res.ok) throw new Error('failed');
+    document.getElementById('f-day').value = '';
+    document.getElementById('f-desc').value = '';
+    document.getElementById('f-amount').value = '';
+    selectedSplit = new Set();
+    renderChips();
+    status.textContent = 'Added!';
+    setTimeout(()=>{ if(status.textContent==='Added!') status.textContent=''; }, 2500);
+    loadExpenses();
+  }catch(err){
+    status.textContent = "Couldn't save — check your connection and try again.";
+    status.className = 'form-status err';
+  }
+});
+
+async function loadExpenses(){
+  const statusEl = document.getElementById('last-updated');
+  try{
+    const res = await fetch('/api/get-expenses');
+    const data = await res.json();
+    expenses = data.entries || [];
+    statusEl.textContent = 'Updated ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'});
+  }catch(err){
+    statusEl.textContent = "Couldn't load — check your connection.";
+  }
+  renderExpenses();
+}
+
+function renderExpenses(){
+  const body = document.getElementById('expense-body');
+  body.innerHTML = '';
+  let total = 0;
+  if(expenses.length === 0){
+    body.innerHTML = '<tr><td colspan="5" style="color:var(--ink-soft);">No expenses yet.</td></tr>';
+  }
+  expenses.forEach(e=>{
+    total += e.amount;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${e.day}</td><td>${e.paidBy}</td><td>${e.desc}</td><td class="split">${e.split.join(", ")}</td><td class="amt">${fmt(e.amount)}</td>`;
+    body.appendChild(tr);
+  });
+  document.getElementById('expense-total').textContent = fmt(total);
+
+  const balances = {};
+  const touch = (n) => { if(!(n in balances)) balances[n] = 0; };
+  expenses.forEach(e=>{
+    touch(e.paidBy); balances[e.paidBy] += e.amount;
+    const share = e.amount / e.split.length;
+    e.split.forEach(p=>{ touch(p); balances[p] -= share; });
+  });
+  const entries = Object.entries(balances);
+  const balBody = document.getElementById('balance-body');
+  balBody.innerHTML = '';
+  if(entries.length === 0){
+    balBody.innerHTML = '<div class="balancerow" style="border-top:none; color:var(--ink-soft);">No expenses logged yet.</div>';
+  } else {
+    entries.sort((a,b)=>b[1]-a[1]).forEach(([name, bal])=>{
+      const cls = bal > 0.5 ? 'pos' : (bal < -0.5 ? 'neg' : '');
+      const label = bal > 0.5 ? `is owed ${fmt(bal)}` : (bal < -0.5 ? `owes ${fmt(-bal)}` : 'settled');
+      const row = document.createElement('div'); row.className = 'balancerow';
+      row.innerHTML = `<span>${name}</span><span class="amt ${cls}">${label}</span>`;
+      balBody.appendChild(row);
+    });
+  }
+
+  const settleBody = document.getElementById('settle-body');
+  settleBody.innerHTML = '';
+  if(entries.length === 0){
+    settleBody.innerHTML = '<div class="settleitem" style="color:var(--ink-soft);">Nothing to settle yet.</div>';
+  } else {
+    const debtors = entries.filter(([,b])=>b < -0.5).map(([n,b])=>[n,-b]).sort((a,b)=>b[1]-a[1]);
+    const creditors = entries.filter(([,b])=>b > 0.5).map(([n,b])=>[n,b]).sort((a,b)=>b[1]-a[1]);
+    let di=0, ci=0; const transfers = [];
+    while(di < debtors.length && ci < creditors.length){
+      const amt = Math.min(debtors[di][1], creditors[ci][1]);
+      transfers.push([debtors[di][0], creditors[ci][0], amt]);
+      debtors[di][1] -= amt; creditors[ci][1] -= amt;
+      if(debtors[di][1] < 0.5) di++;
+      if(creditors[ci][1] < 0.5) ci++;
+    }
+    if(transfers.length === 0){ settleBody.innerHTML = '<div class="settleitem" style="color:var(--ink-soft);">Everyone is settled up.</div>'; }
+    transfers.forEach(([from,to,amt])=>{
+      const item = document.createElement('div'); item.className = 'settleitem';
+      item.innerHTML = `<span>${from}</span><span class="arrow">→</span><span>${to}</span><span style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;">${fmt(amt)}</span>`;
+      settleBody.appendChild(item);
+    });
+  }
+}
+
+document.getElementById('refresh-btn').addEventListener('click', ()=>{ loadExpenses(); loadRegistrations(); });
+loadRegistrations();
+loadExpenses();
+setInterval(()=>{ loadExpenses(); loadRegistrations(); }, 20000);
+</script>
+</body>
+</html>
