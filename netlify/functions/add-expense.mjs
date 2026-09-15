@@ -21,8 +21,31 @@ export default async (req) => {
     }
 
     const store = getStore("expenses");
-    const key = `exp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    await store.setJSON(key, { day, paidBy, desc, amount, split, ts: Date.now() });
+
+    // Duplicate guard: if the same person just added an identical-looking
+    // expense in the last 15 seconds (e.g. a double-tap on a slow connection),
+    // treat this as a repeat rather than creating a second entry.
+    const DUPLICATE_WINDOW_MS = 15000;
+    const now = Date.now();
+    const { blobs } = await store.list();
+    for (const b of blobs) {
+      if (!b.key.startsWith("exp-")) continue;
+      const keyTs = Number(b.key.split("-")[1]);
+      if (!keyTs || now - keyTs > DUPLICATE_WINDOW_MS) continue;
+      const existing = await store.get(b.key, { type: "json" });
+      if (
+        existing &&
+        existing.paidBy === paidBy &&
+        existing.desc === desc &&
+        Number(existing.amount) === amount &&
+        existing.day === day
+      ) {
+        return json({ ok: true, duplicate: true });
+      }
+    }
+
+    const key = `exp-${now}-${Math.random().toString(36).slice(2, 8)}`;
+    await store.setJSON(key, { day, paidBy, desc, amount, split, ts: now });
 
     return json({ ok: true });
   } catch (err) {
