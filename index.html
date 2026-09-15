@@ -841,6 +841,8 @@ async function deleteExpense(id){
 document.getElementById('f-cancel').addEventListener('click', resetExpenseForm);
 
 document.getElementById('f-submit').addEventListener('click', async ()=>{
+  const submitBtn = document.getElementById('f-submit');
+  if(submitBtn.disabled) return; // guard against double-tap while a save is in flight
   const status = document.getElementById('form-status');
   const day = document.getElementById('f-day').value.trim();
   const paidBy = document.getElementById('f-paidby').value.trim();
@@ -854,6 +856,9 @@ document.getElementById('f-submit').addEventListener('click', async ()=>{
     return;
   }
   status.textContent = 'Saving…'; status.className = 'form-status';
+  submitBtn.disabled = true;
+  const originalLabel = submitBtn.textContent;
+  submitBtn.textContent = 'Saving…';
 
   try{
     let res;
@@ -885,6 +890,9 @@ document.getElementById('f-submit').addEventListener('click', async ()=>{
   }catch(err){
     status.textContent = "Couldn't save — check your connection and try again.";
     status.className = 'form-status err';
+    submitBtn.textContent = originalLabel;
+  }finally{
+    submitBtn.disabled = false;
   }
 });
 
@@ -1078,7 +1086,7 @@ document.getElementById('refresh-btn').addEventListener('click', ()=>{ loadExpen
 loadRegistrations();
 loadExpenses();
 loadSettlements();
-setInterval(()=>{ loadExpenses(); loadRegistrations(); loadSettlements(); }, 20000);
+setInterval(()=>{ loadExpenses(); loadRegistrations(); loadSettlements(); }, 8000);
 
 /* Apply saved language choice now that all render functions exist */
 applyLanguage();
