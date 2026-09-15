@@ -921,13 +921,20 @@ document.getElementById('f-submit').addEventListener('click', async ()=>{
 
 async function loadExpenses(){
   const statusEl = document.getElementById('last-updated');
+  const controller = new AbortController();
+  const timeout = setTimeout(()=>controller.abort(), 12000);
   try{
-    const res = await fetch('/api/get-expenses');
+    const res = await fetch('/api/get-expenses', { signal: controller.signal });
+    if(!res.ok) throw new Error('bad status ' + res.status);
     const data = await res.json();
     expenses = data.entries || [];
     statusEl.textContent = 'Updated ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'});
   }catch(err){
-    statusEl.textContent = "Couldn't load — check your connection.";
+    statusEl.textContent = err.name === 'AbortError'
+      ? "Server is slow to respond — will retry automatically."
+      : "Couldn't load — check your connection.";
+  }finally{
+    clearTimeout(timeout);
   }
   renderExpenses();
 }
@@ -1123,11 +1130,21 @@ function renderExpenses(){
   }
 }
 
-document.getElementById('refresh-btn').addEventListener('click', ()=>{ loadExpenses(); loadRegistrations(); loadSettlements(); });
+document.getElementById('refresh-btn').addEventListener('click', ()=>{
+  // Expenses are the priority — fetch them first and on their own so a slow
+  // or failing balances/payments call never holds up the expense list.
+  loadExpenses();
+  loadRegistrations();
+  loadSettlements();
+});
 loadRegistrations();
 loadExpenses();
 loadSettlements();
-setInterval(()=>{ loadExpenses(); loadRegistrations(); loadSettlements(); }, 8000);
+// Expenses refresh often and independently — this is the data everyone cares
+// about seeing quickly. Balances/payments/registrations refresh on a slower,
+// separate timer so a slow or failing call there never blocks the expense list.
+setInterval(()=>{ loadExpenses(); }, 8000);
+setInterval(()=>{ loadRegistrations(); loadSettlements(); }, 25000);
 
 /* Apply saved language choice now that all render functions exist */
 applyLanguage();
