@@ -100,8 +100,9 @@ table.itin .notecell{color:var(--ink-soft); font-size:.83rem;}
 /* ---- Expenses ---- */
 .expense-form{display:grid; grid-template-columns:1fr 1fr 1.4fr 1fr auto; gap:.6rem; margin-bottom:1rem;}
 @media (max-width:820px){ .expense-form{grid-template-columns:1fr 1fr;} }
-.expense-form input{font-family:"Karla", sans-serif; font-size:.86rem; padding:.6rem .8rem; border:1px solid var(--line); border-radius:8px; background:var(--ground); color:var(--ink);}
-.expense-form input:focus-visible{outline:2px solid var(--saffron); outline-offset:1px;}
+.expense-form input, .expense-form select{font-family:"Karla", sans-serif; font-size:.86rem; padding:.6rem .8rem; border:1px solid var(--line); border-radius:8px; background:var(--ground); color:var(--ink);}
+.expense-form input:focus-visible, .expense-form select:focus-visible{outline:2px solid var(--saffron); outline-offset:1px;}
+.expense-form select:disabled{opacity:.85; cursor:not-allowed;}
 .splitbox{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:.9rem 1rem; margin-bottom:1rem;}
 .splitbox .splitlabel{font-family:"IBM Plex Mono", monospace; font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:.6rem; display:block;}
 .chiprow{display:flex; flex-wrap:wrap; gap:.5rem;}
@@ -147,6 +148,8 @@ table.expenses tfoot td{padding:.8rem 1rem; font-family:"IBM Plex Mono", monospa
 @media (max-width:700px){ .settle-form .row{grid-template-columns:1fr 1fr;} }
 .settle-form input, .settle-form select{font-family:"Karla", sans-serif; font-size:.86rem; padding:.55rem .7rem; border:1px solid var(--line); border-radius:8px; background:var(--ground); color:var(--ink);}
 .settle-form button{font-family:"IBM Plex Mono", monospace; font-size:.82rem; font-weight:600; padding:.55rem 1rem; border-radius:8px; border:1px solid var(--saffron); background:var(--saffron); color:var(--surface); cursor:pointer;}
+.settle-form-btns{display:flex; gap:.5rem;}
+.settle-form .settle-cancel-btn{background:transparent; color:var(--ink-soft); border:1px solid var(--line);}
 .recordpay-btn{font-family:"IBM Plex Mono", monospace; font-size:.78rem; font-weight:600; background:var(--saffron-soft); color:var(--saffron); border:none; padding:.5rem 1rem; border-radius:999px; cursor:pointer; margin-top:.9rem;}
 .refreshbar{display:flex; align-items:center; gap:.7rem; font-size:.78rem; color:var(--ink-soft); margin-bottom:.9rem;}
 .refreshbar button{font-family:"IBM Plex Mono", monospace; font-size:.75rem; padding:.4rem .8rem; border-radius:999px; border:1px solid var(--line); background:var(--surface); color:var(--ink); cursor:pointer;}
@@ -338,7 +341,7 @@ table.expenses tfoot td{padding:.8rem 1rem; font-family:"IBM Plex Mono", monospa
     <input type="text" id="f-day" placeholder="Day (e.g. Day 3)" required>
     <input type="text" id="f-desc" placeholder="What was it for" required style="grid-column: span 2;">
     <input type="number" id="f-amount" placeholder="Amount (₹)" min="0" step="1" required>
-    <input type="text" id="f-paidby" placeholder="Paid by" required readonly>
+    <select id="f-paidby" required></select>
   </form>
 
   <div class="splitbox">
@@ -348,7 +351,7 @@ table.expenses tfoot td{padding:.8rem 1rem; font-family:"IBM Plex Mono", monospa
 
   <div class="submitbar">
     <button type="button" id="f-submit">Add Expense</button>
-    <button type="button" id="f-cancel" hidden style="background:transparent; color:var(--ink-soft); border:1px solid var(--line);">Cancel</button>
+    <button type="button" id="f-cancel" style="background:transparent; color:var(--ink-soft); border:1px solid var(--line);">Cancel</button>
     <span class="form-status" id="form-status"></span>
   </div>
 
@@ -377,7 +380,10 @@ table.expenses tfoot td{padding:.8rem 1rem; font-family:"IBM Plex Mono", monospa
             <select id="s-from"><option value="">From</option></select>
             <select id="s-to"><option value="">To</option></select>
             <input type="number" id="s-amount" placeholder="Amount (₹)" min="1" step="1">
-            <button type="button" id="s-submit">Save</button>
+            <div class="settle-form-btns">
+              <button type="button" id="s-submit">Save</button>
+              <button type="button" id="s-cancel" class="settle-cancel-btn">Cancel</button>
+            </div>
           </div>
           <span class="form-status" id="settle-status"></span>
         </div>
@@ -540,14 +546,23 @@ function askAdminPin(){
   if(pin) localStorage.setItem('kasiAdminPin', pin);
   return pin || '';
 }
-function applyAdminUI(){
-  const paidByInput = document.getElementById('f-paidby');
+function populatePaidBySelect(){
+  const sel = document.getElementById('f-paidby');
+  const cur = sel.value || currentUser();
   if(isAdmin()){
-    paidByInput.removeAttribute('readonly');
-    paidByInput.placeholder = 'Paid by (you can enter anyone’s name)';
+    const names = registeredNames.includes('Vishy') ? registeredNames : [...registeredNames, 'Vishy'];
+    sel.innerHTML = names.map(n=>`<option value="${n}">${n}</option>`).join('');
+    sel.disabled = false;
+    if(names.includes(cur)) sel.value = cur;
   } else {
-    paidByInput.setAttribute('readonly', 'readonly');
+    const me = currentUser();
+    sel.innerHTML = `<option value="${me}">${me}</option>`;
+    sel.value = me;
+    sel.disabled = true;
   }
+}
+function applyAdminUI(){
+  populatePaidBySelect();
   document.getElementById('recordpay-btn').hidden = !isAdmin();
   if(!isAdmin()) document.getElementById('settle-form').classList.remove('show');
   renderExpenses();
@@ -579,7 +594,6 @@ document.getElementById('gate-submit').addEventListener('click', async ()=>{
     localStorage.setItem('kasiName', name);
     gate.hidden = true;
     status.textContent = '';
-    document.getElementById('f-paidby').value = name;
     applyAdminUI();
     showWhoAmI();
     loadRegistrations();
@@ -590,7 +604,6 @@ document.getElementById('gate-submit').addEventListener('click', async ()=>{
 
 if(currentUser()){
   gate.hidden = true;
-  document.getElementById('f-paidby').value = currentUser();
 }
 showWhoAmI();
 applyAdminUI();
@@ -787,6 +800,7 @@ async function loadRegistrations(){
     const data = await res.json();
     registeredNames = data.names || [];
     renderChips();
+    populatePaidBySelect();
   }catch(err){ /* keep whatever we had */ }
 }
 
@@ -795,11 +809,10 @@ function resetExpenseForm(){
   document.getElementById('f-day').value = '';
   document.getElementById('f-desc').value = '';
   document.getElementById('f-amount').value = '';
-  document.getElementById('f-paidby').value = isAdmin() ? '' : currentUser();
+  document.getElementById('f-paidby').value = currentUser();
   selectedSplit = new Set();
   renderChips();
   document.getElementById('f-submit').textContent = 'Add Expense';
-  document.getElementById('f-cancel').hidden = true;
 }
 
 function startEditExpense(id){
@@ -813,7 +826,6 @@ function startEditExpense(id){
   selectedSplit = new Set(e.split);
   renderChips();
   document.getElementById('f-submit').textContent = 'Save Changes';
-  document.getElementById('f-cancel').hidden = false;
   document.getElementById('expense-form').scrollIntoView({behavior:'smooth', block:'center'});
 }
 
@@ -935,6 +947,16 @@ document.getElementById('recordpay-btn').addEventListener('click', ()=>{
   document.getElementById('settle-form').classList.toggle('show');
 });
 
+function resetSettleForm(){
+  document.getElementById('s-from').value = '';
+  document.getElementById('s-to').value = '';
+  document.getElementById('s-amount').value = '';
+  document.getElementById('settle-status').textContent = '';
+  document.getElementById('settle-status').className = 'form-status';
+  document.getElementById('settle-form').classList.remove('show');
+}
+document.getElementById('s-cancel').addEventListener('click', resetSettleForm);
+
 document.getElementById('s-submit').addEventListener('click', async ()=>{
   const status = document.getElementById('settle-status');
   const from = document.getElementById('s-from').value;
@@ -960,6 +982,8 @@ document.getElementById('s-submit').addEventListener('click', async ()=>{
       return;
     }
     if(!res.ok) throw new Error('failed');
+    document.getElementById('s-from').value = '';
+    document.getElementById('s-to').value = '';
     document.getElementById('s-amount').value = '';
     status.textContent = 'Recorded!';
     setTimeout(()=>{ if(status.textContent==='Recorded!') status.textContent=''; }, 2500);
