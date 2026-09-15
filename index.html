@@ -844,6 +844,8 @@ async function deleteExpense(id){
       return;
     }
     if(!res.ok) throw new Error('failed');
+    expenses = expenses.filter(e=>e.id !== id);
+    renderExpenses();
     loadExpenses();
   }catch(err){
     alert("Couldn't delete — check your connection and try again.");
@@ -895,6 +897,15 @@ document.getElementById('f-submit').addEventListener('click', async ()=>{
     }
     if(!res.ok) throw new Error('failed');
     const wasEditing = !!editingExpenseId;
+    // Optimistic update: reflect the change instantly instead of waiting on the
+    // round-trip to re-fetch everything from the server.
+    if(wasEditing){
+      const idx = expenses.findIndex(x=>x.id===editingExpenseId);
+      if(idx !== -1) expenses[idx] = { ...expenses[idx], day, paidBy, desc, amount, split };
+    } else {
+      expenses.push({ id: 'pending-'+Date.now(), day, paidBy, desc, amount, split });
+    }
+    renderExpenses();
     resetExpenseForm();
     status.textContent = wasEditing ? 'Changes saved!' : 'Added!';
     setTimeout(()=>{ if(status.textContent==='Added!'||status.textContent==='Changes saved!') status.textContent=''; }, 2500);
@@ -982,6 +993,10 @@ document.getElementById('s-submit').addEventListener('click', async ()=>{
       return;
     }
     if(!res.ok) throw new Error('failed');
+    // Optimistic update: show the payment immediately rather than waiting on
+    // a second round-trip to re-fetch settlements from the server.
+    settlements.push({ id: 'pending-'+Date.now(), from, to, amount });
+    renderExpenses();
     document.getElementById('s-from').value = '';
     document.getElementById('s-to').value = '';
     document.getElementById('s-amount').value = '';
@@ -1009,6 +1024,8 @@ async function deleteSettlement(id){
       return;
     }
     if(!res.ok) throw new Error('failed');
+    settlements = settlements.filter(s=>s.id !== id);
+    renderExpenses();
     loadSettlements();
   }catch(err){
     alert("Couldn't delete — check your connection and try again.");
