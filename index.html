@@ -118,6 +118,9 @@ table.itin .notecell{color:var(--ink-soft); font-size:.83rem;}
 @media (max-width:760px){ .expense-grid{grid-template-columns:1fr;} }
 table.expenses{width:100%; border-collapse:collapse; font-size:.88rem; min-width:520px;}
 table.expenses thead th{text-align:left; font-family:"IBM Plex Mono", monospace; font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); padding:.75rem 1rem; border-bottom:1px solid var(--line);}
+table.expenses thead th.sortable{cursor:pointer; user-select:none;}
+table.expenses thead th.sortable:hover{color:var(--ink);}
+table.expenses thead th.sortable .sortarrow{font-size:.65rem; color:var(--saffron); margin-left:.2rem;}
 table.expenses td{padding:.65rem 1rem; border-bottom:1px solid var(--line); vertical-align:top;}
 table.expenses tr:last-child td{border-bottom:none;}
 table.expenses .amt{font-family:"IBM Plex Mono", monospace; font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap;}
@@ -338,7 +341,7 @@ table.expenses tfoot td{padding:.8rem 1rem; font-family:"IBM Plex Mono", monospa
   <div class="note-strip">Add an expense below — pick who it should be split among from everyone who's registered so far. Totals and balances update for everyone automatically.</div>
 
   <form class="expense-form" id="expense-form">
-    <input type="text" id="f-day" placeholder="Day (e.g. Day 3)" required>
+    <select id="f-day" required><option value="">Date</option></select>
     <input type="text" id="f-desc" placeholder="What was it for" required style="grid-column: span 2;">
     <input type="number" id="f-amount" placeholder="Amount (₹)" min="0" step="1" required>
     <select id="f-paidby" required></select>
@@ -363,7 +366,7 @@ table.expenses tfoot td{padding:.8rem 1rem; font-family:"IBM Plex Mono", monospa
   <div class="expense-grid">
     <div class="tablewrap">
       <table class="expenses">
-        <thead><tr><th>Day</th><th>Paid by</th><th>For</th><th>Split among</th><th style="text-align:right">Amount</th><th></th></tr></thead>
+        <thead><tr><th class="sortable" data-sort="day">Date <span class="sortarrow"></span></th><th class="sortable" data-sort="paidBy">Paid by <span class="sortarrow"></span></th><th>For</th><th>Split among</th><th style="text-align:right">Amount</th><th></th></tr></thead>
         <tbody id="expense-body"></tbody>
         <tfoot><tr><td colspan="4">Total spent</td><td class="amt" id="expense-total"></td></tr></tfoot>
       </table>
@@ -420,6 +423,7 @@ let expenses = [];
 let editingExpenseId = null;
 let lang = localStorage.getItem('kasiLang') || 'en';
 let settlements = [];
+let expenseSort = { key: null, dir: 1 };
 
 /* ---------------- Language toggle ---------------- */
 function applyLanguage(){
@@ -1047,7 +1051,17 @@ function renderExpenses(){
     body.innerHTML = '<tr><td colspan="6" style="color:var(--ink-soft);">No expenses yet.</td></tr>';
   }
   const admin = isAdmin();
-  expenses.forEach(e=>{
+  let sortedExpenses = expenses;
+  if(expenseSort.key){
+    sortedExpenses = expenses.slice().sort((a,b)=>{
+      const av = (a[expenseSort.key] || '').toString().toLowerCase();
+      const bv = (b[expenseSort.key] || '').toString().toLowerCase();
+      if(av < bv) return -1 * expenseSort.dir;
+      if(av > bv) return 1 * expenseSort.dir;
+      return 0;
+    });
+  }
+  sortedExpenses.forEach(e=>{
     total += e.amount;
     const tr = document.createElement('tr');
     const actions = admin
@@ -1137,6 +1151,32 @@ document.getElementById('refresh-btn').addEventListener('click', ()=>{
   loadRegistrations();
   loadSettlements();
 });
+
+/* ---------------- Expense date picker (01 Nov – 15 Nov) ---------------- */
+function populateExpenseDates(){
+  const sel = document.getElementById('f-day');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const opts = ['<option value="">Date</option>'];
+  for(let d = 1; d <= 15; d++){
+    const label = String(d).padStart(2,'0') + ' Nov';
+    opts.push(`<option value="${label}">${label}</option>`);
+  }
+  sel.innerHTML = opts.join('');
+}
+populateExpenseDates();
+
+/* ---------------- Sort expense table by Date or Paid by ---------------- */
+document.querySelectorAll('#page-expenses th.sortable').forEach(th=>{
+  th.addEventListener('click', ()=>{
+    const key = th.getAttribute('data-sort');
+    if(expenseSort.key === key){ expenseSort.dir *= -1; }
+    else { expenseSort = { key, dir: 1 }; }
+    document.querySelectorAll('#page-expenses th.sortable .sortarrow').forEach(a=>a.textContent='');
+    th.querySelector('.sortarrow').textContent = expenseSort.dir === 1 ? '▲' : '▼';
+    renderExpenses();
+  });
+});
+
 loadRegistrations();
 loadExpenses();
 loadSettlements();
